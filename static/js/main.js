@@ -214,57 +214,72 @@ document.addEventListener('DOMContentLoaded', () => {
             const modal = document.createElement('div');
             modal.style.background = '#ffffff';
             modal.style.color = '#3c4043';
-            modal.style.borderRadius = '16px';
-            modal.style.padding = '35px 30px';
+            modal.style.borderRadius = '8px';
+            modal.style.padding = '40px 35px';
             modal.style.width = '100%';
-            modal.style.maxWidth = '400px';
+            modal.style.maxWidth = '420px';
             modal.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.3)';
             modal.style.fontFamily = '"Roboto", "Arial", sans-serif';
             modal.style.textAlign = 'center';
+            modal.style.boxSizing = 'border-box';
             
             modal.innerHTML = `
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google logo" style="height: 28px; margin-bottom: 20px;">
-                <h3 style="font-size: 1.35rem; font-weight: 500; margin-bottom: 5px; color: #202124;">Sign in with Google</h3>
-                <p style="font-size: 0.9rem; color: #5f6368; margin-bottom: 25px;">to continue to <strong>ResumeAI</strong></p>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google logo" style="height: 24px; margin-bottom: 15px;">
+                <h3 style="font-size: 1.45rem; font-weight: 400; margin-bottom: 5px; color: #202124; font-family: 'Roboto', sans-serif;">Sign in</h3>
+                <p style="font-size: 0.95rem; color: #202124; margin-bottom: 25px;">to continue to <span style="font-weight: 600;">ResumeAI</span></p>
                 
-                <!-- Account List -->
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; text-align: left;">
-                    <!-- Option 1 -->
-                    <div class="google-acc-opt" data-email="dhanush.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; transition: background 0.2s; background: transparent;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #a855f7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;">D</div>
-                        <div>
-                            <div style="font-weight: 500; font-size: 0.9rem; color: #3c4043;">Dhanush Google</div>
-                            <div style="font-size: 0.8rem; color: #5f6368;">dhanush.google@gmail.com</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Option 2 -->
-                    <div class="google-acc-opt" data-email="candidate.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; transition: background 0.2s; background: transparent;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #ec4899; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;">C</div>
-                        <div>
-                            <div style="font-weight: 500; font-size: 0.9rem; color: #3c4043;">Candidate User</div>
-                            <div style="font-size: 0.8rem; color: #5f6368;">candidate.google@gmail.com</div>
-                        </div>
-                    </div>
+                <!-- Custom Email Input -->
+                <div style="text-align: left; margin-bottom: 20px; width: 100%;">
+                    <input type="email" id="google-custom-email" style="width: 100%; padding: 14px 12px; border: 1px solid #dadce0; border-radius: 4px; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.2s;" placeholder="Email or phone">
+                    <p id="google-error-msg" style="color: #d93025; font-size: 0.8rem; margin-top: 6px; display: none; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid email address</p>
                 </div>
                 
-                <button id="google-popup-close" style="background: transparent; border: none; color: #1a73e8; font-weight: 500; font-size: 0.9rem; cursor: pointer; padding: 5px 10px;">Cancel</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 30px;">
+                    <button id="google-popup-close" style="background: transparent; border: none; color: #1a73e8; font-weight: 500; font-size: 0.9rem; cursor: pointer; padding: 10px 0;">Cancel</button>
+                    <button id="google-popup-signin" style="background: #1a73e8; color: #ffffff; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 500; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">Next</button>
+                </div>
             `;
             
             overlay.appendChild(modal);
             document.body.appendChild(overlay);
             
-            // Hover styles for account selections
-            const options = modal.querySelectorAll('.google-acc-opt');
-            options.forEach(opt => {
-                opt.addEventListener('mouseenter', () => opt.style.background = '#f7f8f8');
-                opt.addEventListener('mouseleave', () => opt.style.background = 'transparent');
+            const emailInput = modal.querySelector('#google-custom-email');
+            const signinBtn = modal.querySelector('#google-popup-signin');
+            const errorMsg = modal.querySelector('#google-error-msg');
+            
+            // Focus on input
+            setTimeout(() => emailInput.focus(), 100);
+            
+            // Hover styles for button
+            signinBtn.addEventListener('mouseenter', () => signinBtn.style.background = '#1557b0');
+            signinBtn.addEventListener('mouseleave', () => signinBtn.style.background = '#1a73e8');
+            
+            // Blue outline focus border for input
+            emailInput.addEventListener('focus', () => emailInput.style.borderColor = '#1a73e8');
+            emailInput.addEventListener('blur', () => emailInput.style.borderColor = '#dadce0');
+            
+            function handleGoogleSignIn() {
+                const emailVal = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 
-                // Account click handler
-                opt.addEventListener('click', () => {
-                    const selectedEmail = opt.getAttribute('data-email');
-                    window.location.href = `/login/google-mock?email=${encodeURIComponent(selectedEmail)}`;
-                });
+                if (!emailVal || !emailRegex.test(emailVal)) {
+                    errorMsg.style.display = 'block';
+                    emailInput.style.borderColor = '#d93025';
+                    return;
+                }
+                
+                errorMsg.style.display = 'none';
+                emailInput.style.borderColor = '#1a73e8';
+                
+                // Redirect to mock route with customized email
+                window.location.href = `/login/google-mock?email=${encodeURIComponent(emailVal)}`;
+            }
+            
+            signinBtn.addEventListener('click', handleGoogleSignIn);
+            emailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleGoogleSignIn();
+                }
             });
             
             // Close handler
