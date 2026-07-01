@@ -108,11 +108,11 @@ with app.app_context():
         admin_user.password_hash = hashed_password
         
     db.session.commit()
-        print("\n=== DEFAULT ADMIN ACCOUNT CREATED ===")
-        # Print credentials in terminal for convenience
-        print("Email: dhanush@resumeai.com")
-        print("Password: admin123")
-        print("=====================================\n")
+    print("\n=== DEFAULT ADMIN ACCOUNT CREATED ===")
+    # Print credentials in terminal for convenience
+    print("Email: dhanush@resumeai.com")
+    print("Password: admin123")
+    print("=====================================\n")
 
 # Helper: Retrieve Gemini Key from Database or Environment
 def get_gemini_api_key():
