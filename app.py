@@ -83,8 +83,8 @@ with app.app_context():
     db.create_all()
     # Check if admin exists, if not, create one
     admin_user = User.query.filter_by(username='dhanush').first()
+    hashed_password = generate_password_hash('admin123')
     if not admin_user:
-        hashed_password = generate_password_hash('admin123')
         admin = User(
             username='dhanush', 
             email='dhanush@resumeai.com', 
@@ -103,7 +103,11 @@ with app.app_context():
             skills="Python, Flask, AI Development, SQL"
         )
         db.session.add(admin_profile)
-        db.session.commit()
+    else:
+        # Force-update admin password to ensure hashing compatibility
+        admin_user.password_hash = hashed_password
+        
+    db.session.commit()
         print("\n=== DEFAULT ADMIN ACCOUNT CREATED ===")
         # Print credentials in terminal for convenience
         print("Email: dhanush@resumeai.com")
