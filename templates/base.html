@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ResumeAI — Smart Resume Analyzer{% endblock %}</title>
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <nav class="navbar">
+        <a href="{{ url_for('home') }}" class="nav-logo">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> ResumeAI
+        </a>
+        <ul class="nav-links">
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('upload') }}" class="nav-link {% if request.path == '/upload' %}active{% endif %}">Upload</a></li>
+                <li><a href="{{ url_for('profile_setup') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a></li>
+                {% if current_user.is_admin %}
+                    <li><a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.path == '/admin' %}active{% endif %}"><i class="fa-solid fa-lock"></i> Admin Dashboard</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('logout') }}" class="nav-btn-outline"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}" class="nav-link {% if request.path == '/login' %}active{% endif %}">Login</a></li>
+                <li><a href="{{ url_for('register') }}" class="nav-btn">Get Started</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+        <div style="width: 100%;">
+            <!-- Flash Message Notifications -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="alert alert-{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ResumeAI — Powered by Dhanush. All rights secured.</p>
+    </footer>
+
+    <!-- JavaScript script -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

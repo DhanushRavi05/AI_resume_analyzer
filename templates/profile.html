@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Profile — ResumeAI{% endblock %}
+
+{% block content %}
+<div class="glass-container form-card" style="margin: 0 auto; max-width: 600px;">
+    <h1 class="form-title">Academic Details</h1>
+    <p class="form-subtitle">Help our AI understand your education background for better salary and job predictions</p>
+    
+    <form action="{{ url_for('profile_setup') }}" method="POST">
+        <div class="form-group">
+            <label for="college_name" class="form-label">College / University Name</label>
+            <input type="text" id="college_name" name="college_name" class="form-control" 
+                   value="{{ profile.college_name if profile else '' }}" 
+                   placeholder="e.g., Anna University, IIT Madras" required>
+        </div>
+
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+                <label for="degree" class="form-label">Degree & Department</label>
+                <input type="text" id="degree" name="degree" class="form-control" 
+                       value="{{ profile.degree if profile else '' }}" 
+                       placeholder="e.g., B.E. CSE, B.Tech IT" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="cgpa" class="form-label">CGPA / Percentage</label>
+                <input type="text" id="cgpa" name="cgpa" class="form-control" 
+                       value="{{ profile.cgpa if profile else '' }}" 
+                       placeholder="e.g., 8.5 / 10" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 10px;">
+            <label for="graduation_year" class="form-label">Graduation Year</label>
+            <input type="text" id="graduation_year" name="graduation_year" class="form-control" 
+                   value="{{ profile.graduation_year if profile else '' }}" 
+                   placeholder="e.g., 2026" required>
+        </div>
+
+        <div class="form-group">
+            <label for="skills" class="form-label">Primary Technical Skills (Comma Separated)</label>
+            <textarea id="skills" name="skills" class="form-control" rows="3" 
+                      placeholder="e.g., Python, React, SQL, Java, Machine Learning" required>{{ profile.skills if profile else '' }}</textarea>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="margin-top: 15px;">
+            Save & Continue <i class="fa-solid fa-circle-check"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}
