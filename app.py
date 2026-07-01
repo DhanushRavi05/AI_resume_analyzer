@@ -84,7 +84,7 @@ with app.app_context():
     # Check if admin exists, if not, create one
     admin_user = User.query.filter_by(username='dhanush').first()
     if not admin_user:
-        hashed_password = generate_password_hash('admin123', method='pbkdf2:sha256')
+        hashed_password = generate_password_hash('admin123')
         admin = User(
             username='dhanush', 
             email='dhanush@resumeai.com', 
@@ -356,7 +356,7 @@ def register():
             flash('Username or Email already registered!', 'danger')
             return redirect(url_for('register'))
             
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        hashed_password = generate_password_hash(password)
         
         # Auto-promote 'dhanush' or 'dhanush@resumeai.com' to admin
         is_admin = False
