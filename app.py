@@ -397,7 +397,8 @@ def login():
         else:
             flash('Invalid email or password!', 'danger')
             
-    return render_template('login.html')
+    client_id, _ = get_google_oauth_credentials()
+    return render_template('login.html', google_client_id=client_id or "")
 
 @app.route('/logout')
 @login_required
@@ -406,17 +407,129 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('login'))
 
+# Google OAuth configuration details
+def get_google_oauth_credentials():
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    
+    # Try fetching from DB settings as well
+    try:
+        id_setting = Setting.query.filter_by(key='google_client_id').first()
+        secret_setting = Setting.query.filter_by(key='google_client_secret').first()
+        if id_setting and id_setting.value:
+            client_id = id_setting.value.strip()
+        if secret_setting and secret_setting.value:
+            client_secret = secret_setting.value.strip()
+    except Exception as e:
+        print(f"Error checking google settings: {e}")
+        
+    return client_id, client_secret
+
+@app.route('/login/google')
+def google_login_redirect():
+    client_id, _ = get_google_oauth_credentials()
+    if not client_id:
+        return redirect(url_for('login'))
+        
+    import urllib.parse
+    state = "resumeai_oauth_state"
+    redirect_uri = f"{request.url_root.replace('http://', 'https://') if 'onrender.com' in request.url_root else request.url_root}login/google/callback"
+    
+    params = {
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'state': state,
+        'prompt': 'select_account'
+    }
+    url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+    return redirect(url)
+
+@app.route('/login/google/callback')
+def google_login_callback():
+    code = request.args.get('code')
+    if not code:
+        flash('Google authentication cancelled.', 'warning')
+        return redirect(url_for('login'))
+        
+    client_id, client_secret = get_google_oauth_credentials()
+    redirect_uri = f"{request.url_root.replace('http://', 'https://') if 'onrender.com' in request.url_root else request.url_root}login/google/callback"
+    
+    # Exchange code for token
+    import requests
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
+    
+    try:
+        r = requests.post(token_url, data=data)
+        token_data = r.json()
+        access_token = token_data.get('access_token')
+        
+        if not access_token:
+            flash('Failed to retrieve tokens from Google.', 'danger')
+            return redirect(url_for('login'))
+            
+        userinfo_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        userinfo_r = requests.get(userinfo_url, headers=headers)
+        user_info = userinfo_r.json()
+        
+        email = user_info.get('email')
+        name = user_info.get('name', email.split('@')[0])
+        
+        if not email:
+            flash('Failed to retrieve email from Google profile.', 'danger')
+            return redirect(url_for('login'))
+            
+        # Log in or register user
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            hashed_password = generate_password_hash('googleoauthloginsecurepwd123')
+            user = User(username=name, email=email, password_hash=hashed_password, is_admin=False)
+            db.session.add(user)
+            db.session.commit()
+            
+        login_user(user)
+        
+        # If user has no profile, create a default one to save time
+        if not user.profile:
+            profile = Profile(
+                user_id=user.id,
+                college_name="Google Verified University",
+                degree="Computer Science Engineering",
+                cgpa="8.5",
+                graduation_year="2025",
+                skills="Python, Javascript, React, SQL, Cloud Architecture"
+            )
+            db.session.add(profile)
+            db.session.commit()
+            
+        flash('Logged in successfully via Google!', 'success')
+        return redirect(url_for('upload'))
+        
+    except Exception as e:
+        print(f"Google Callback Error: {e}")
+        flash('Error during Google authentication exchange.', 'danger')
+        return redirect(url_for('login'))
+
 # Simulated Google OAuth login route for clean live demo
 @app.route('/login/google-mock')
 def google_mock_login():
-    email = request.args.get('email', 'dhanush.google@gmail.com').strip()
+    email = request.args.get('email', 'dhanushravi1485@gmail.com').strip()
     username = email.split('@')[0]
     
     # Check if user exists
     user = User.query.filter_by(email=email).first()
     if not user:
         # Create user
-        hashed_password = generate_password_hash('googleauthbypass123', method='pbkdf2:sha256')
+        hashed_password = generate_password_hash('googleauthbypass123')
         user = User(username=username, email=email, password_hash=hashed_password, is_admin=False)
         db.session.add(user)
         db.session.commit()

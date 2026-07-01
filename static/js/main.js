@@ -196,6 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const googleLoginBtn = document.getElementById('google-login-btn');
     if (googleLoginBtn) {
         googleLoginBtn.addEventListener('click', () => {
+            // Redirect to real Google OAuth if configured
+            if (window.GOOGLE_CLIENT_ID && window.GOOGLE_CLIENT_ID.trim() !== "") {
+                window.location.href = "/login/google";
+                return;
+            }
+            
             // Create a styled backdrop overlay
             const overlay = document.createElement('div');
             overlay.style.position = 'fixed';
