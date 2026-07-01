@@ -232,20 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     <!-- Account List -->
                     <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; text-align: left; border-top: 1px solid #dadce0;">
                         <!-- Option 1 -->
-                        <div class="google-acc-opt" data-email="dhanush.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
+                        <div class="google-acc-opt" data-email="dhanushravi1485@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
                             <div style="width: 28px; height: 28px; border-radius: 50%; background: #a855f7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">D</div>
                             <div>
                                 <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043; line-height: 1.2;">Dhanush Ravi</div>
-                                <div style="font-size: 0.75rem; color: #5f6368; line-height: 1.2;">dhanush.google@gmail.com</div>
+                                <div style="font-size: 0.75rem; color: #5f6368; line-height: 1.2;">dhanushravi1485@gmail.com</div>
                             </div>
                         </div>
                         
                         <!-- Option 2 -->
-                        <div class="google-acc-opt" data-email="candidate.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
-                            <div style="width: 28px; height: 28px; border-radius: 50%; background: #ec4899; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">C</div>
+                        <div class="google-acc-opt" data-email="dhanushravi1735@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
+                            <div style="width: 28px; height: 28px; border-radius: 50%; background: #ec4899; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;">D</div>
                             <div>
-                                <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043; line-height: 1.2;">Candidate User</div>
-                                <div style="font-size: 0.75rem; color: #5f6368; line-height: 1.2;">candidate.google@gmail.com</div>
+                                <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043; line-height: 1.2;">Dhanush Ravi</div>
+                                <div style="font-size: 0.75rem; color: #5f6368; line-height: 1.2;">dhanushravi1735@gmail.com</div>
                             </div>
                         </div>
 
