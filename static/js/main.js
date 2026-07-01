@@ -191,4 +191,86 @@ document.addEventListener('DOMContentLoaded', () => {
             speakReport();
         }, 1500); // 1.5s delay to let page entrance animation complete first
     }
+
+    // Google Sign-In Mock Popup Overlay
+    const googleLoginBtn = document.getElementById('google-login-btn');
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', () => {
+            // Create a styled backdrop overlay
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0, 0, 0, 0.7)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '9999';
+            overlay.style.backdropFilter = 'blur(10px)';
+            
+            // Create Google accounts modal
+            const modal = document.createElement('div');
+            modal.style.background = '#ffffff';
+            modal.style.color = '#3c4043';
+            modal.style.borderRadius = '16px';
+            modal.style.padding = '35px 30px';
+            modal.style.width = '100%';
+            modal.style.maxWidth = '400px';
+            modal.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.3)';
+            modal.style.fontFamily = '"Roboto", "Arial", sans-serif';
+            modal.style.textAlign = 'center';
+            
+            modal.innerHTML = `
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google logo" style="height: 28px; margin-bottom: 20px;">
+                <h3 style="font-size: 1.35rem; font-weight: 500; margin-bottom: 5px; color: #202124;">Sign in with Google</h3>
+                <p style="font-size: 0.9rem; color: #5f6368; margin-bottom: 25px;">to continue to <strong>ResumeAI</strong></p>
+                
+                <!-- Account List -->
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; text-align: left;">
+                    <!-- Option 1 -->
+                    <div class="google-acc-opt" data-email="dhanush.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; transition: background 0.2s; background: transparent;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #a855f7; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;">D</div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.9rem; color: #3c4043;">Dhanush Google</div>
+                            <div style="font-size: 0.8rem; color: #5f6368;">dhanush.google@gmail.com</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Option 2 -->
+                    <div class="google-acc-opt" data-email="candidate.google@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; transition: background 0.2s; background: transparent;">
+                        <div style="width: 36px; height: 36px; border-radius: 50%; background: #ec4899; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;">C</div>
+                        <div>
+                            <div style="font-weight: 500; font-size: 0.9rem; color: #3c4043;">Candidate User</div>
+                            <div style="font-size: 0.8rem; color: #5f6368;">candidate.google@gmail.com</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="google-popup-close" style="background: transparent; border: none; color: #1a73e8; font-weight: 500; font-size: 0.9rem; cursor: pointer; padding: 5px 10px;">Cancel</button>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Hover styles for account selections
+            const options = modal.querySelectorAll('.google-acc-opt');
+            options.forEach(opt => {
+                opt.addEventListener('mouseenter', () => opt.style.background = '#f7f8f8');
+                opt.addEventListener('mouseleave', () => opt.style.background = 'transparent');
+                
+                // Account click handler
+                opt.addEventListener('click', () => {
+                    const selectedEmail = opt.getAttribute('data-email');
+                    window.location.href = `/login/google-mock?email=${encodeURIComponent(selectedEmail)}`;
+                });
+            });
+            
+            // Close handler
+            modal.querySelector('#google-popup-close').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+            });
+        });
+    }
 });

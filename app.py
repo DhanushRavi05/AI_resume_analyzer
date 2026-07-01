@@ -340,6 +340,39 @@ def logout():
     flash('Logged out successfully.', 'info')
     return redirect(url_for('login'))
 
+# Simulated Google OAuth login route for clean live demo
+@app.route('/login/google-mock')
+def google_mock_login():
+    email = request.args.get('email', 'dhanush.google@gmail.com').strip()
+    username = email.split('@')[0]
+    
+    # Check if user exists
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Create user
+        hashed_password = generate_password_hash('googleauthbypass123', method='pbkdf2:sha256')
+        user = User(username=username, email=email, password_hash=hashed_password, is_admin=False)
+        db.session.add(user)
+        db.session.commit()
+        
+    login_user(user)
+    flash('Logged in successfully via Google!', 'success')
+    
+    # If user has no profile, create a default one to save time
+    if not user.profile:
+        profile = Profile(
+            user_id=user.id,
+            college_name="Google Verified University",
+            degree="Computer Science Engineering",
+            cgpa="8.5",
+            graduation_year="2025",
+            skills="Python, Javascript, React, SQL, Cloud Architecture"
+        )
+        db.session.add(profile)
+        db.session.commit()
+        
+    return redirect(url_for('upload'))
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile_setup():
