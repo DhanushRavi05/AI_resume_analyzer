@@ -249,12 +249,19 @@ def analyze_resume_with_ai(resume_text, profile):
         response = model.generate_content(prompt)
         response_text = response.text.strip()
         
-        # Clean up Markdown JSON codeblocks if Gemini insists on wrapping it
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-        response_text = response_text.strip()
+        # Robustly extract JSON block if wrapped in markdown code blocks
+        if "```json" in response_text:
+            try:
+                response_text = response_text.split("```json")[1].split("```")[0].strip()
+            except:
+                pass
+        elif "```" in response_text:
+            try:
+                response_text = response_text.split("```")[1].split("```")[0].strip()
+            except:
+                pass
+        else:
+            response_text = response_text.strip()
         
         data = json.loads(response_text)
         
