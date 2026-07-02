@@ -251,6 +251,35 @@ def extract_text_from_pdf(file):
         print(f"Error reading PDF: {e}")
         return ""
 
+# Helper: Strict resume document format validator
+def validate_if_resume_text(text):
+    text_lower = text.lower()
+    
+    # 1. Immediate rejection of blacklisted non-resume documents
+    blacklist_keywords = [
+        'aadhaar', 'government of india', 'unique identification', 'pan card', 
+        'permanent account number', 'driving license', 'voter id', 'passport india', 
+        'tax invoice', 'bill to', 'bank statement', 'receipt number', 'invoice details'
+    ]
+    for word in blacklist_keywords:
+        if word in text_lower:
+            return False, f"ERROR: The uploaded document appears to be an ID card, government certificate, or invoice ({word.upper()}) and NOT a professional resume. Please upload a valid resume PDF."
+            
+    # 2. Check presence of core resume section titles
+    resume_keywords = [
+        'education', 'experience', 'skills', 'projects', 'summary', 'objective', 
+        'employment', 'qualifications', 'curriculum vitae', 'cv', 'achievements', 
+        'certifications', 'extracurricular'
+    ]
+    
+    match_count = sum(1 for word in resume_keywords if word in text_lower)
+    
+    # Require at least 2 matching resume keywords to pass
+    if len(text_lower.strip()) < 100 or match_count < 2:
+        return False, "ERROR: The uploaded PDF does not contain standard resume sections (like Education, Experience, or Skills). Please upload a valid professional resume PDF."
+        
+    return True, ""
+
 # Helper: AI Analysis (with Fallbacks and schema checks)
 def analyze_resume_with_ai(resume_text, profile):
     api_key = get_gemini_api_key()
@@ -646,8 +675,16 @@ def upload():
             with open(filepath, 'rb') as f:
                 text = extract_text_from_pdf(f)
                 
-            if not text or len(text.strip()) < 10:
-                text = f"Resume Document. Academic Profile: {current_user.profile.college_name}, Degree: {current_user.profile.degree}, skills: {current_user.profile.skills}."
+            # Perform strict resume validation
+            is_resume, reject_reason = validate_if_resume_text(text)
+            if not is_resume:
+                try:
+                    if os.path.exists(filepath):
+                        os.remove(filepath)
+                except Exception as rm_err:
+                    print(f"Error removing invalid file: {rm_err}")
+                flash(reject_reason, 'danger')
+                return redirect(url_for('upload'))
                 
             analysis_result = analyze_resume_with_ai(text, current_user.profile)
             parser_backend_used = "Java JDK & Python" if use_java else "Python (Fallback)"
