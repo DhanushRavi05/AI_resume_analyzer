@@ -117,15 +117,19 @@ with app.app_context():
     # Pre-seed user accounts for Dhanush to prevent deletion on Render container restarts
     dhanush_1485 = User.query.filter_by(email='dhanushravi1485@gmail.com').first()
     if not dhanush_1485:
-        u1 = User(
+        dhanush_1485 = User(
             username='dhanush_1485',
             email='dhanushravi1485@gmail.com',
-            password_hash=generate_password_hash('password123'),
             is_admin=False
         )
-        db.session.add(u1)
+        db.session.add(dhanush_1485)
+        db.session.flush()
+        
+    dhanush_1485.password_hash = generate_password_hash('password123')
+    
+    if not dhanush_1485.profile:
         p1 = Profile(
-            user=u1,
+            user=dhanush_1485,
             college_name="Google verified university",
             degree="B.E. Computer Science Engineering",
             cgpa="8.5",
@@ -136,15 +140,19 @@ with app.app_context():
 
     dhanush_1735 = User.query.filter_by(email='dhanushravi1735@gmail.com').first()
     if not dhanush_1735:
-        u2 = User(
+        dhanush_1735 = User(
             username='dhanush_1735',
             email='dhanushravi1735@gmail.com',
-            password_hash=generate_password_hash('password123'),
             is_admin=False
         )
-        db.session.add(u2)
+        db.session.add(dhanush_1735)
+        db.session.flush()
+        
+    dhanush_1735.password_hash = generate_password_hash('password123')
+    
+    if not dhanush_1735.profile:
         p2 = Profile(
-            user=u2,
+            user=dhanush_1735,
             college_name="Google verified university",
             degree="B.E. Computer Science Engineering",
             cgpa="8.5",
