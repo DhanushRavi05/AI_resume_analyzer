@@ -4,15 +4,15 @@
 
 {% block content %}
 <div class="glass-container form-card" style="margin: 0 auto; max-width: 600px; animation: pageEntrance 0.4s ease-out;">
-    <h1 class="form-title" style="font-size: 2rem; margin-bottom: 8px;">Apply for Job Role</h1>
+    <h1 class="form-title" style="font-size: 2rem; margin-bottom: 8px;">Submit Application</h1>
     <p class="form-subtitle" style="margin-bottom: 24px; color: var(--text-muted);">
-        Applying to <strong style="color: var(--secondary);">{{ company }}</strong> as a <strong style="color: var(--accent);">{{ role }}</strong>
+        Applying to <strong style="color: var(--primary);">{{ company }}</strong> for the <strong style="color: var(--accent);">{{ role }}</strong> position.
     </p>
 
     <form action="{{ url_for('apply_job', company=company, role=role) }}" method="POST" enctype="multipart/form-data">
         <!-- Full Name -->
         <div class="form-group">
-            <label for="full_name" class="form-label">Full Name</label>
+            <label for="full_name" class="form-label">Applicant Name</label>
             <input type="text" id="full_name" name="full_name" class="form-control" value="{{ current_user.username }}" required>
         </div>
 
@@ -24,16 +24,14 @@
 
         <!-- Cover Letter / Pitch -->
         <div class="form-group">
-            <label for="cover_letter" class="form-label">Why are you a good fit for this role?</label>
-            <textarea id="cover_letter" name="cover_letter" class="form-control" rows="5" placeholder="Write a short cover letter or custom pitch explaining your skills and project contributions..." required style="resize: vertical; min-height: 120px; font-family: inherit;"></textarea>
+            <label for="cover_letter" class="form-label">Professional Pitch Note</label>
+            <textarea id="cover_letter" name="cover_letter" class="form-control" rows="5" placeholder="Explain your key contributions and why you fit this corporate vacancy..." required style="resize: vertical; min-height: 120px; font-family: inherit;"></textarea>
         </div>
 
         <!-- Resume File Upload -->
         <div class="form-group">
             <label for="application_resume" class="form-label">Upload Resume (PDF only)</label>
-            <div style="position: relative;">
-                <input type="file" id="application_resume" name="application_resume" class="form-control" accept=".pdf" required style="padding-top: 10px;">
-            </div>
+            <input type="file" id="application_resume" name="application_resume" class="form-control" accept=".pdf" required style="padding-top: 10px;">
             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
                 <i class="fa-solid fa-triangle-exclamation"></i> Only PDF format resumes are accepted for ATS compatibility checks.
             </p>

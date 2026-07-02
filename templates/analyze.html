@@ -11,124 +11,150 @@
 {% endblock %}
 
 {% block content %}
-<div class="report-layout">
+<div style="width: 100%; max-width: 1100px; margin: 0 auto; animation: pageEntrance 0.5s ease-out;">
     
-    <!-- Sidebar: ATS Score & Advice -->
-    <aside class="report-aside">
-        <!-- ATS Score Card -->
-        <div class="glass-container score-widget">
-            <h3 class="score-label">ATS Match Score</h3>
-            <div class="score-circle">
-                <div class="score-value">{{ analysis.ats_score }}<span style="font-size: 1.5rem; font-weight: 500;">%</span></div>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;">
-                {% if analysis.ats_score >= 80 %}
-                    Excellent resume layout & keyword match!
-                {% elif analysis.ats_score >= 60 %}
-                    Good score, but can be improved with key skills.
-                {% else %}
-                    Needs optimization. Critical skills are missing.
-                {% endif %}
-            </p>
-            
-            <!-- Parser Backend indicator -->
-            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--border-glass); font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <i class="fa-solid fa-server" style="color: var(--secondary);"></i> 
-                <span>Engine: <strong>{{ analysis.parser_backend }}</strong></span>
-            </div>
-        </div>
-
-        <!-- Warning if Mocking API Key -->
-        {% if not gemini_enabled %}
-            <div class="glass-container" style="border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.02);">
-                <h4 style="color: #f59e0b; margin-bottom: 8px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Mock Analysis Mode</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-                    This analysis is using mock data. To activate real-time Gemini AI analysis, edit your <strong>.env</strong> file and add a valid <strong>GEMINI_API_KEY</strong>.
-                </p>
-            </div>
-        {% endif %}
-    </aside>
-
-    <!-- Main Section: Jobs, Salaries, Skill Gaps -->
-    <section class="report-main">
+    <div class="hud-layout">
         
-        <!-- Job Recommendations Grid -->
-        <div class="glass-container">
-            <h2 class="form-title" style="text-align: left; font-size: 1.6rem; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-briefcase" style="color: var(--secondary);"></i> Matching Job Roles & Packages
-            </h2>
-            
-            <div class="job-grid">
-                {% for job in matching_jobs %}
-                    <div class="job-card tilt-card">
-                        <div class="job-header">
-                            <h3 class="job-role">{{ job.role }}</h3>
-                            <span class="match-badge">{{ job.match_percentage }}% Match</span>
-                        </div>
-                        
-                        <div class="job-companies">
-                            {% for company in job.companies %}
-                                <span class="company-tag">{{ company }}</span>
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="job-salary">
-                            <span class="salary-label">Est. Package:</span>
-                            <span class="salary-val">{{ job.salary_range }}</span>
-                        </div>
+        <!-- Left Column: Rotating HUD Radar & Score metadata -->
+        <div class="hud-radar-column" style="flex: 0.85;">
+            <!-- Radar score card -->
+            <div class="glass-container score-widget" style="text-align: center; padding: 30px;">
+                <h3 class="form-title" style="font-size: 1.3rem; margin-bottom: 10px;">ATS MATCH METRICS</h3>
+                
+                <div class="hud-orbit-box">
+                    <div class="hud-rotating-ring"></div>
+                    <div class="hud-score-center">{{ analysis.ats_score }}%</div>
+                </div>
 
-                        {% if job.companies %}
-                            <div style="margin-top: 12px; z-index: 10; position: relative;">
-                                <a href="{{ url_for('apply_job', company=job.companies[0], role=job.role) }}" class="btn-primary" style="padding: 10px 14px; font-size: 0.85rem; margin-top: 0; width: 100%; border-radius: 10px; justify-content: center; text-decoration: none; display: inline-flex;">
-                                    Apply Now &nbsp;<i class="fa-solid fa-paper-plane" style="font-size: 0.75rem;"></i>
-                                </a>
+                <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 700; margin-top: 15px;">
+                    {% if analysis.ats_score >= 80 %}
+                        EXCELLENT KEYWORD MATCH PROFILE
+                    {% elif analysis.ats_score >= 60 %}
+                        GOOD SCORE - SKILL GAPS IDENTIFIED
+                    {% else %}
+                        CRITICAL MATCH DEFICIENCY DETECTED
+                    {% endif %}
+                </p>
+
+                <!-- Engine indicator -->
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-glass); font-size: 0.82rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa-solid fa-server" style="color: var(--primary);"></i> 
+                    <span>Engine: <strong>{{ analysis.parser_backend }}</strong></span>
+                </div>
+
+                <!-- Speech visualizer wave -->
+                <div class="audio-wave-box" id="hud-audio-wave">
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                    <div class="audio-bar"></div>
+                </div>
+            </div>
+
+            <!-- Mock indicator warning -->
+            {% if not gemini_enabled %}
+                <div class="glass-container" style="border-color: rgba(234, 179, 8, 0.3); background: rgba(234, 179, 8, 0.02); padding: 20px;">
+                    <h4 style="color: #eab308; margin-bottom: 8px; font-weight:700; font-size:0.9rem;"><i class="fa-solid fa-triangle-exclamation"></i> Mock Analysis Mode</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                        No active Gemini Key found. Add your key in the **Admin Settings** to get actual AI match metrics.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Matching Jobs HUD & Skill Gaps -->
+        <div class="hud-panel-column" style="flex: 1.15;">
+            
+            <!-- Corporate Mission vacancy grid -->
+            <div class="glass-container" style="padding: 25px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 8px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-bullseye"></i> Corporate Mission Recommendations
+                </h3>
+                
+                <div class="mission-grid">
+                    {% for job in matching_jobs %}
+                        <div class="mission-card tilt-card">
+                            <div class="mission-header">
+                                <h4 style="font-size: 1rem; font-weight: 800; color: #ffffff;">{{ job.role }}</h4>
+                                <span style="background: rgba(168, 85, 247, 0.15); color: #ffffff; font-size: 0.72rem; padding: 2px 8px; border-radius: 12px; font-weight: 700; border: 1px solid rgba(168, 85, 247, 0.4);">
+                                    {{ job.match_percentage }}% Match
+                                </span>
                             </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Skill Gaps Card -->
-        <div class="glass-container">
-            <h2 class="form-title" style="text-align: left; font-size: 1.6rem; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-triangle-exclamation" style="color: var(--accent);"></i> Skill Gaps Identified
-            </h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-                Our AI matched your resume against current market demands. Learning these skills will increase your ATS score and interview callbacks:
-            </p>
-            
-            <div class="skills-list">
-                {% if skill_gaps %}
-                    {% for skill in skill_gaps %}
-                        <span class="skill-gap-badge"><i class="fa-solid fa-circle-exclamation"></i> {{ skill }}</span>
+                            
+                            <div style="margin: 12px 0; display: flex; flex-wrap: wrap; gap: 6px;">
+                                {% for company in job.companies %}
+                                    <span class="mission-company-badge">{{ company }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-top: 1.5px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                                <div>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Est. Package:</span>
+                                    <strong style="font-size: 0.88rem; color: #ffffff;">{{ job.salary_range }}</strong>
+                                </div>
+                                
+                                {% if job.companies %}
+                                    <a href="{{ url_for('apply_job', company=job.companies[0], role=job.role) }}" class="btn-primary" style="padding: 8px 12px; font-size: 0.78rem; width: auto; margin-top: 0; border-radius: 8px; box-shadow: none;">
+                                        Apply <i class="fa-solid fa-paper-plane" style="font-size: 0.7rem;"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endfor %}
-                {% else %}
-                    <span class="skill-gap-badge" style="background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); color:#10b981;">
-                        <i class="fa-solid fa-circle-check"></i> No major skill gaps found! Excellent profile.
-                    </span>
-                {% endif %}
+                </div>
             </div>
-        </div>
 
-        <!-- Career Strategy Advice -->
-        <div class="glass-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                <h2 class="form-title" style="text-align: left; font-size: 1.6rem; margin-bottom: 0; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-compass" style="color: var(--primary);"></i> AI Career Guidance
-                </h2>
-                <button id="speak-btn" class="nav-btn-outline" style="padding: 6px 14px; font-size: 0.8rem; border-radius: 8px; display: inline-flex; align-items:center; gap: 6px; border-color: var(--primary); color: var(--primary); background: transparent; cursor: pointer; transition: var(--transition-smooth); font-weight:700;">
-                    <i class="fa-solid fa-volume-high"></i> Listen to AI
-                </button>
+            <!-- Skill Gaps dashboard list -->
+            <div class="glass-container" style="padding: 25px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 8px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--text-muted);"></i> Identified Skill Gaps
+                </h3>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    {% for gap in skill_gaps %}
+                        <span style="background: rgba(239, 68, 68, 0.1); border: 1.5px solid rgba(239, 68, 68, 0.35); color: #ef4444; padding: 6px 14px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-circle-exclamation"></i> {{ gap }}
+                        </span>
+                    {% endfor %}
+                </div>
             </div>
-            <p id="advice-text" style="font-size: 1rem; line-height: 1.7; color: var(--text-primary);">
-                {{ analysis.career_advice }}
-            </p>
-        </div>
 
-        <div style="display: flex; gap: 15px; justify-content: flex-end;">
-            <a href="{{ url_for('upload') }}" class="nav-btn-outline" style="text-align: center;"><i class="fa-solid fa-upload"></i> Upload Another Resume</a>
+            <!-- AI Career Advice Terminal card -->
+            <div class="glass-container" style="padding: 25px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 15px; border-left: 4px solid var(--primary); padding-left: 8px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-terminal"></i> AI Career guidance Terminal
+                </h3>
+                <div style="background: rgba(4,1,10,0.65); border: 1.5px solid var(--border-glass); border-radius: 12px; padding: 20px; font-family: 'Courier New', Courier, monospace; font-size: 0.88rem; line-height: 1.5; color: #ffffff;">
+                    <p style="color: var(--primary); margin-bottom: 8px;">> INITIALIZING CAREER ADVICE REPORT...</p>
+                    <p style="text-align: justify; color: #f5f3ff;">{{ analysis.career_advice }}</p>
+                </div>
+            </div>
+
         </div>
-    </section>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Animate audio wave visualizer based on speech synthesis status
+    const audioWave = document.getElementById('hud-audio-wave');
+    if (audioWave) {
+        audioWave.style.opacity = '0'; // Hide by default
+        
+        // Check periodically if window is speaking
+        const checkInterval = setInterval(() => {
+            if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                audioWave.style.opacity = '1';
+            } else {
+                audioWave.style.opacity = '0';
+            }
+        }, 150);
+        
+        // Stop checking after 25 seconds
+        setTimeout(() => clearInterval(checkInterval), 25000);
+    }
+</script>
 {% endblock %}

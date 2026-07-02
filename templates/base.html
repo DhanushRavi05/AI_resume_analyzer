@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ResumeAI — Smart Resume Analyzer{% endblock %}</title>
-    <!-- CSS Stylesheet -->
+    <title>{% block title %}Dhanush's AI Resume Analyzer{% endblock %}</title>
+    <!-- Custom Cyberpunk Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- FontAwesome for Premium Icons -->
+    <!-- FontAwesome CDNs -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
 </head>
 <body>
+
+    <!-- Top Neon Scrolling Marquee Ticker -->
+    <div class="marquee-container">
+        <div class="marquee-text">
+            <i class="fa-solid fa-bullhorn" style="color: var(--primary); margin-right: 5px;"></i> Welcome to Dhanush's AI Resume Analyzer! Upload your PDF resume to trigger real-time AI matching and salary evaluations. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-microphone" style="color: var(--accent); margin-right: 5px;"></i> Voice Command Navigation Active: Click the floating mic and say "register", "upload", "tracker", or "guide" to navigate!
+        </div>
+    </div>
 
     <!-- Header & Navigation -->
     <nav class="navbar">
@@ -20,9 +27,11 @@
         <ul class="nav-links">
             {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('upload') }}" class="nav-link {% if request.path == '/upload' %}active{% endif %}">Upload</a></li>
+                <li><a href="{{ url_for('tracker') }}" class="nav-link {% if request.path == '/tracker' %}active{% endif %}">Tracker</a></li>
+                <li><a href="{{ url_for('about') }}" class="nav-link {% if request.path == '/about' %}active{% endif %}">About Creator</a></li>
                 <li><a href="{{ url_for('profile_setup') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a></li>
                 {% if current_user.is_admin %}
-                    <li><a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.path == '/admin' %}active{% endif %}"><i class="fa-solid fa-lock"></i> Admin Dashboard</a></li>
+                    <li><a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.path == '/admin' %}active{% endif %}"><i class="fa-solid fa-lock"></i> Admin Settings</a></li>
                 {% endif %}
                 <li><a href="{{ url_for('logout') }}" class="nav-btn-outline"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
             {% else %}
@@ -32,22 +41,24 @@
         </ul>
     </nav>
 
-    <!-- Scrolling Marquee Banner -->
-    <div class="marquee-container">
-        <div class="marquee-text">
-            <i class="fa-solid fa-bullhorn" style="color: var(--secondary); margin-right: 5px;"></i> Welcome to ResumeAI! You can upload your resume to analyze and find the best job with a good package. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); margin-right: 5px;"></i> Upload your PDF resume to trigger real-time AI matching and salary evaluations.
-        </div>
-    </div>
-
     <!-- Main Content Container -->
     <main class="main-content">
         <div style="width: 100%;">
-            <!-- Flash Message Notifications -->
+            <!-- Flash Notifications -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <ul class="flashes">
+                    <ul style="list-style: none; margin-bottom: 25px; padding: 0;">
                         {% for category, message in messages %}
-                            <li class="alert alert-{{ category }}">{{ message }}</li>
+                            <li style="padding: 14px 20px; border-radius: 12px; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem;
+                                {% if category == 'danger' %}
+                                    background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444;
+                                {% elif category == 'success' %}
+                                    background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #22c55e;
+                                {% else %}
+                                    background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.4); color: var(--primary);
+                                {% endif %}">
+                                <i class="fa-solid fa-bell" style="margin-right: 8px;"></i> {{ message }}
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
@@ -57,9 +68,14 @@
         </div>
     </main>
 
+    <!-- Floating Microphone Assistant Bubble -->
+    <div class="voice-hud-bubble" id="voice-hud-mic" title="Click to use Voice Command Assistant">
+        <i class="fa-solid fa-microphone"></i>
+    </div>
+
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 ResumeAI — Powered by Dhanush. All rights secured.</p>
+        <p>&copy; 2026 Dhanush's AI Resume Analyzer. Created and Developed by Dhanush Ravi. All rights reserved.</p>
     </footer>
 
     <!-- JavaScript script -->

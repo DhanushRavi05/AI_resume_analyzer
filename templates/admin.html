@@ -1,195 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}Dhanush Admin Dashboard — ResumeAI{% endblock %}
+{% block title %}Admin Dashboard — ResumeAI{% endblock %}
 
 {% block content %}
-<div class="glass-container admin-card" style="margin: 0 auto;">
-    <div class="admin-header">
-        <div>
-            <h1 class="form-title" style="text-align: left; margin-bottom: 5px;">Admin Control Panel</h1>
-            <p class="form-subtitle" style="text-align: left; margin-bottom: 0;">Exclusive database view powered by Dhanush. Confidentially review candidate data.</p>
-        </div>
-        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border-glass); border-radius: 12px; padding: 10px 20px; font-weight:700; color: var(--primary);">
-            <i class="fa-solid fa-user-shield"></i> Master Admin Session
-        </div>
+<div style="width: 100%; max-width: 1100px; margin: 0 auto; animation: pageEntrance 0.5s ease-out;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="form-title" style="font-size: 2.6rem; margin-bottom: 8px;"><i class="fa-solid fa-lock"></i> Admin Dashboard</h1>
+        <p class="form-subtitle" style="font-size: 1.05rem; color: var(--text-muted);">Manage platform configurations, API integrations, and candidate application timelines.</p>
     </div>
 
-    <!-- API Key Settings Section (Exclusive for Dhanush) -->
-    <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; margin-bottom: 30px;">
-        <h3 style="font-size: 1.1rem; font-weight:700; margin-bottom: 8px; color: var(--secondary); display: flex; align-items:center; gap: 8px;">
-            <i class="fa-solid fa-key"></i> Gemini AI Configuration
+    <!-- API configuration settings card -->
+    <div class="glass-container" style="padding: 30px; border-radius: 20px; margin-bottom: 30px;">
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 8px;">
+            <i class="fa-solid fa-key"></i> Gemini AI API Configuration
         </h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
-            Enter your Gemini API Key here to enable live AI Resume Analysis for all users. If empty, the app runs in Mock Mode.
-        </p>
-        <form action="{{ url_for('update_settings') }}" method="POST" style="display: flex; gap: 15px; align-items: center; max-width: 600px;">
-            <input type="password" name="gemini_key" class="form-control" style="flex: 1; padding: 10px 14px; font-size: 0.9rem; margin-bottom: 0;" 
-                   placeholder="Enter Gemini API Key (AIzaSy...)" value="{{ gemini_key }}">
-            <button type="submit" class="btn-primary" style="width: auto; margin-top: 0; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 10px; flex-shrink: 0;">
-                Save Key
+        
+        <form action="{{ url_for('update_settings') }}" method="POST" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; min-width: 300px; margin-bottom: 0;">
+                <label for="gemini_key" class="form-label">Google Gemini API Key</label>
+                <input type="text" id="gemini_key" name="gemini_key" class="form-control" placeholder="Paste your API key (starts with AQ.Ab8RN6L... or similar)" value="{{ gemini_key }}">
+            </div>
+            
+            <button type="submit" class="btn-primary" style="width: auto; height: 48px; padding: 0 25px; margin-top: 0; border-radius: 12px;">
+                Save Key <i class="fa-solid fa-save"></i>
             </button>
         </form>
-    </div>
-    <!-- User Database Table -->
-    <div class="table-responsive">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Candidate Details</th>
-                    <th>College / University</th>
-                    <th>Degree & CGPA</th>
-                    <th>Technical Skills</th>
-                    <th>Latest ATS Score</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if data %}
-                    {% for row in data %}
-                        <tr>
-                            <td>
-                                <div style="font-weight: 700;">{{ row.user.username }}</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ row.user.email }}</div>
-                            </td>
-                            <td>
-                                {% if row.profile %}
-                                    <div>{{ row.profile.college_name }}</div>
-                                    <div style="font-size: 0.8rem; color: var(--text-muted);">Grad Class: {{ row.profile.graduation_year }}</div>
-                                {% else %}
-                                    <span style="color: var(--text-muted); font-style: italic;">Profile incomplete</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if row.profile %}
-                                    <div>{{ row.profile.degree }}</div>
-                                    <div style="font-size: 0.85rem; color: var(--secondary); font-weight: 600;">CGPA: {{ row.profile.cgpa }}</div>
-                                {% else %}
-                                    <span style="color: var(--text-muted); font-style: italic;">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if row.profile %}
-                                    <div style="max-width: 250px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                                        {{ row.profile.skills }}
-                                    </div>
-                                {% else %}
-                                    <span style="color: var(--text-muted); font-style: italic;">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if row.analysis %}
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.1rem; color: {% if row.analysis.ats_score >= 80 %}#10b981{% elif row.analysis.ats_score >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
-                                            {{ row.analysis.ats_score }}%
-                                        </span>
-                                    </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ row.analysis.timestamp.strftime('%d %b %Y, %H:%M') if row.analysis.timestamp else '' }}</div>
-                                {% else %}
-                                    <span class="match-badge" style="background: rgba(236,72,153,0.1); border-color: rgba(236,72,153,0.2); color: var(--accent);">
-                                        Pending Resume
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if row.analysis %}
-                                    <a href="{{ url_for('analyze_report', analysis_id=row.analysis.id) }}" class="nav-btn-outline" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; display: inline-flex; align-items:center; gap: 5px;">
-                                        <i class="fa-solid fa-eye"></i> View Report
-                                    </a>
-                                {% else %}
-                                    <span style="color: var(--text-muted); font-size: 0.85rem;">No action</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            No users registered yet.
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">
+            <i class="fa-solid fa-info-circle"></i> Discarding or leaving the API key empty will automatically toggle the app into simulated Mock Mode for resume scanning.
+        </p>
     </div>
 
-    <!-- Job Applications Section (Exclusive for Dhanush) -->
-    <div style="margin-top: 50px;">
-        <div class="admin-header" style="margin-bottom: 20px;">
-            <div>
-                <h2 class="form-title" style="text-align: left; font-size: 1.6rem; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-paper-plane" style="color: var(--secondary);"></i> Submitted Candidate Applications
-                </h2>
-                <p class="form-subtitle" style="text-align: left; margin-bottom: 0; font-size: 0.85rem;">Track which user applied to which matched company directly through the portal.</p>
+    <!-- Two column data tables -->
+    <div class="hud-layout">
+        <!-- Left: Candidates list -->
+        <div class="hud-radar-column" style="flex: 1;">
+            <div class="glass-container" style="padding: 25px; border-radius: 20px;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 8px;">
+                    <i class="fa-solid fa-users"></i> Registered Candidates
+                </h3>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-muted); font-weight: 700;">
+                                <th style="padding: 10px;">Username</th>
+                                <th style="padding: 10px;">Email</th>
+                                <th style="padding: 10px;">CGPA</th>
+                                <th style="padding: 10px;">Last Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in data %}
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); color: #ffffff;">
+                                    <td style="padding: 12px; font-weight: 700;">{{ item.user.username }}</td>
+                                    <td style="padding: 12px; opacity: 0.8;">{{ item.user.email }}</td>
+                                    <td style="padding: 12px; font-weight: 700; color: var(--primary);">
+                                        {{ item.profile.cgpa if item.profile else 'N/A' }}
+                                    </td>
+                                    <td style="padding: 12px; font-weight: 700;">
+                                        {{ item.analysis.ats_score ~ '%' if item.analysis else 'N/A' }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        
-        <div class="table-responsive">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Applicant</th>
-                        <th>Academic Profile</th>
-                        <th>Target Company</th>
-                        <th>Target Role</th>
-                        <th>Cover Letter Pitch</th>
-                        <th>Resume PDF</th>
-                        <th>Date Applied</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if applications %}
-                        {% for app_item in applications %}
-                            <tr>
-                                <td>
-                                    <div style="font-weight: 700;">{{ app_item.user.username }}</div>
-                                    <div style="font-size: 0.85rem; color: var(--text-muted);">{{ app_item.user.email }}</div>
-                                </td>
-                                <td>
-                                    {% if app_item.user.profile %}
-                                        <div>{{ app_item.user.profile.college_name }}</div>
-                                        <div style="font-size: 0.8rem; color: var(--secondary); font-weight: 600;">
-                                            {{ app_item.user.profile.degree }} ({{ app_item.user.profile.cgpa }} CGPA)
-                                        </div>
-                                    {% else %}
-                                        <span style="color: var(--text-muted); font-style: italic;">Profile incomplete</span>
-                                    {% endif %}
-                                </td>
-                                <td style="font-weight: 700; color: var(--accent);">
-                                    {{ app_item.company_name }}
-                                </td>
-                                <td style="font-weight: 700; color: var(--secondary);">
-                                    {{ app_item.job_role }}
-                                </td>
-                                <td>
-                                    <div style="max-width: 300px; font-size: 0.85rem; color: var(--text-muted); white-space: normal; line-height: 1.4;">
-                                        {{ app_item.cover_letter }}
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if app_item.resume_filename %}
-                                        <a href="{{ url_for('static', filename='uploads/' + app_item.resume_filename) }}" target="_blank" class="nav-btn-outline" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; display: inline-flex; align-items:center; gap: 5px; text-decoration: none;">
-                                            <i class="fa-solid fa-file-pdf" style="color: var(--accent);"></i> View Resume
-                                        </a>
-                                    {% else %}
-                                        <span style="color: var(--text-muted); font-style: italic;">No PDF</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div style="font-size: 0.85rem; color: var(--text-primary);">
-                                        {{ app_item.timestamp.strftime('%d %b %Y, %H:%M') if app_item.timestamp else '' }}
-                                    </div>
-                                </td>
+
+        <!-- Right: Applications list -->
+        <div class="hud-panel-column" style="flex: 1;">
+            <div class="glass-container" style="padding: 25px; border-radius: 20px; height: 100%;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; border-left: 4px solid var(--primary); padding-left: 8px;">
+                    <i class="fa-solid fa-file-signature"></i> Application Submissions
+                </h3>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 1.5px solid var(--border-glass); color: var(--text-muted); font-weight: 700;">
+                                <th style="padding: 10px;">Company</th>
+                                <th style="padding: 10px;">Role</th>
+                                <th style="padding: 10px;">Date</th>
+                                <th style="padding: 10px;">Status</th>
                             </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 45px;">
-                                No applications submitted yet.
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); color: #ffffff;">
+                                    <td style="padding: 12px; font-weight: 700;">{{ app.company_name }}</td>
+                                    <td style="padding: 12px;">{{ app.job_role }}</td>
+                                    <td style="padding: 12px; opacity: 0.8;">{{ app.timestamp.strftime('%b %d, %Y') }}</td>
+                                    <td style="padding: 12px;">
+                                        <span style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #22c55e;">
+                                            {{ app.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

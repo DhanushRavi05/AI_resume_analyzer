@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Resume Tracker — ResumeAI{% endblock %}
+
+{% block content %}
+<div style="width: 100%; max-width: 1100px; margin: 0 auto; animation: pageEntrance 0.5s ease-out;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 class="form-title" style="font-size: 2.6rem; margin-bottom: 8px;">Resume & Application Tracker</h1>
+        <p class="form-subtitle" style="font-size: 1.05rem; color: var(--text-muted);">Track your scanned resumes, ATS match metrics, and corporate vacancy pipelines.</p>
+    </div>
+
+    <div class="hud-layout">
+        <!-- Left: Upload/Scan History list -->
+        <div class="hud-radar-column" style="flex: 0.9;">
+            <div class="glass-container" style="padding: 25px; border-radius: 20px;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); padding-left: 8px;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Analysis History
+                </h3>
+                
+                {% if not analyses %}
+                    <div style="text-align: center; padding: 35px 20px; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fa-solid fa-folder-open" style="font-size: 2.2rem; margin-bottom: 12px; opacity: 0.5; color: var(--primary);"></i>
+                        <p>No analysis scans logs found.</p>
+                        <a href="{{ url_for('upload') }}" style="color: #ffffff; font-weight: 700; margin-top: 10px; display: block; text-decoration: none;">Scan resume now</a>
+                    </div>
+                {% else %}
+                    <div style="display: flex; flex-direction: column; gap: 12px; max-height: 480px; overflow-y: auto; padding-right: 5px;">
+                        {% for item in analyses %}
+                            <div class="mission-card" style="padding: 16px; margin: 0; background: rgba(15, 8, 30, 0.25);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <span style="font-weight: 700; font-size: 0.95rem; color: #ffffff;">Scan #{{ item.id }}</span>
+                                    <span style="background: rgba(124, 58, 237, 0.2); color: #ffffff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(124, 58, 237, 0.4);">
+                                        Score: {{ item.ats_score }}%
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
+                                    <span><i class="fa-solid fa-calendar-day"></i> {{ item.timestamp.strftime('%B %d, %Y %I:%M %p') }}</span>
+                                    <span><i class="fa-solid fa-server"></i> Parser: <strong>{{ item.parser_backend }}</strong></span>
+                                </div>
+                                <div style="margin-top: 10px; text-align: right;">
+                                    <a href="{{ url_for('analyze_report', analysis_id=item.id) }}" style="color: #ffffff; font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        View Report <i class="fa-solid fa-arrow-right-long"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right: Applications Status Stepper pipelines -->
+        <div class="hud-panel-column" style="flex: 1.1;">
+            <div class="glass-container" style="padding: 25px; border-radius: 20px; height: 100%;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); padding-left: 8px;">
+                    <i class="fa-solid fa-chart-line"></i> Applications Pipeline Tracker
+                </h3>
+
+                {% if not applications %}
+                    <div style="text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 0.95rem;">
+                        <i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.4; color: var(--primary);"></i>
+                        <p>You haven't submitted any job applications yet.</p>
+                        <p style="font-size: 0.8rem; margin-top: 5px;">Scan a resume first, match recommended jobs, and click "Apply Now" to track progress!</p>
+                    </div>
+                {% else %}
+                    <div style="display: flex; flex-direction: column; gap: 20px; max-height: 480px; overflow-y: auto; padding-right: 5px;">
+                        {% for app in applications %}
+                            <div class="mission-card" style="margin: 0; background: rgba(15, 8, 30, 0.15); border: 1px solid var(--border-glass);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 8px;">
+                                    <div>
+                                        <h4 style="font-size: 1.1rem; font-weight: 800; color: #ffffff; margin-bottom: 2px;">{{ app.company_name }}</h4>
+                                        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Position: {{ app.job_role }}</span>
+                                    </div>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Applied {{ app.timestamp.strftime('%b %d') }}</span>
+                                </div>
+
+                                <!-- Dynamic Stepper Progress representation -->
+                                <div style="display: flex; justify-content: space-between; position: relative; margin: 15px 0 5px; padding: 0 10px;">
+                                    <!-- Backing Line -->
+                                    <div style="position: absolute; top: 12px; left: 10px; right: 10px; height: 3px; background: rgba(255,255,255,0.06); z-index: 1;"></div>
+                                    <!-- Filled Progress Line -->
+                                    <div style="position: absolute; top: 12px; left: 10px; height: 3px; background: var(--primary); z-index: 1; transition: width 0.4s ease;
+                                        {% if app.status == 'Applied' %} width: 25%;
+                                        {% elif app.status == 'Review' %} width: 50%;
+                                        {% elif app.status == 'Interview Scheduled' %} width: 75%;
+                                        {% else %} width: 100%; {% endif %}">
+                                    </div>
+
+                                    <!-- Step 1: Applied -->
+                                    <div style="text-align: center; z-index: 2; position: relative;">
+                                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin: 0 auto 5px;
+                                            background: var(--primary); color: #ffffff; box-shadow: 0 0 10px var(--primary);">
+                                            <i class="fa-solid fa-check"></i>
+                                        </div>
+                                        <span style="font-size: 0.7rem; font-weight: 700; color: #ffffff;">Applied</span>
+                                    </div>
+
+                                    <!-- Step 2: Under Review -->
+                                    <div style="text-align: center; z-index: 2; position: relative;">
+                                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin: 0 auto 5px;
+                                            {% if app.status in ['Review', 'Interview Scheduled', 'Offer', 'Closed'] %}
+                                                background: var(--primary); color: #ffffff; box-shadow: 0 0 10px var(--primary);
+                                            {% else %}
+                                                background: rgba(4,1,10,0.8); border: 1.5px solid var(--border-glass); color: var(--text-muted);
+                                            {% endif %}">
+                                            <i class="fa-solid fa-hourglass-half"></i>
+                                        </div>
+                                        <span style="font-size: 0.7rem; font-weight: 700; {% if app.status in ['Review', 'Interview Scheduled', 'Offer', 'Closed'] %} color: #ffffff; {% else %} color: var(--text-muted); {% endif %}">Review</span>
+                                    </div>
+
+                                    <!-- Step 3: Interview -->
+                                    <div style="text-align: center; z-index: 2; position: relative;">
+                                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin: 0 auto 5px;
+                                            {% if app.status in ['Interview Scheduled', 'Offer', 'Closed'] %}
+                                                background: var(--primary); color: #ffffff; box-shadow: 0 0 10px var(--primary);
+                                            {% else %}
+                                                background: rgba(4,1,10,0.8); border: 1.5px solid var(--border-glass); color: var(--text-muted);
+                                            {% endif %}">
+                                            <i class="fa-solid fa-user-group"></i>
+                                        </div>
+                                        <span style="font-size: 0.7rem; font-weight: 700; {% if app.status in ['Interview Scheduled', 'Offer', 'Closed'] %} color: #ffffff; {% else %} color: var(--text-muted); {% endif %}">Interview</span>
+                                    </div>
+
+                                    <!-- Step 4: Status Final -->
+                                    <div style="text-align: center; z-index: 2; position: relative;">
+                                        <div style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; margin: 0 auto 5px;
+                                            {% if app.status in ['Offer', 'Closed'] %}
+                                                background: {% if app.status == 'Offer' %} #22c55e {% else %} #ef4444 {% endif %}; color: #ffffff; box-shadow: 0 0 10px {% if app.status == 'Offer' %} #22c55e {% else %} #ef4444 {% endif %};
+                                            {% else %}
+                                                background: rgba(4,1,10,0.8); border: 1.5px solid var(--border-glass); color: var(--text-muted);
+                                            {% endif %}">
+                                            <i class="fa-solid fa-trophy"></i>
+                                        </div>
+                                        <span style="font-size: 0.7rem; font-weight: 700; {% if app.status in ['Offer', 'Closed'] %} color: #ffffff; {% else %} color: var(--text-muted); {% endif %}">
+                                            {{ app.status if app.status in ['Offer', 'Closed'] else 'Result' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 15px; text-align: right;">
+                                    <a href="{{ url_for('demo_portal', company=app.company_name, role=app.job_role) }}" style="color: var(--primary); font-weight: 700; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                        Go to Interview Portal <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

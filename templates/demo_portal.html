@@ -1,80 +1,62 @@
 {% extends "base.html" %}
 
-{% block title %}Simulated {{ company }} Portal — ResumeAI{% endblock %}
+{% block title %}Simulated Career Portal — ResumeAI{% endblock %}
 
 {% block content %}
-<div class="glass-container form-card" style="margin: 0 auto; max-width: 700px; text-align: left;">
-    
-    <!-- Header banner -->
-    <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(244, 114, 182, 0.1) 100%); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-        <div>
-            <span class="form-label" style="font-size: 0.75rem; color: var(--accent); letter-spacing: 1.5px; font-weight:800;">Simulated Portal</span>
-            <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight:800; color: var(--text-primary); margin-top: 4px;">{{ company }} Careers</h1>
-        </div>
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; font-weight:700; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items:center; gap: 6px;">
-            <i class="fa-solid fa-circle-dot" style="animation: pulse 1.2s infinite;"></i> Connected
-        </div>
-    </div>
+<div class="glass-container" style="margin: 0 auto; max-width: 750px; padding: 40px; text-align: center; animation: pageEntrance 0.4s ease-out;">
+    <h1 class="form-title" style="font-size: 2.2rem; margin-bottom: 8px;">{{ company }} Career Portal</h1>
+    <p class="form-subtitle" style="margin-bottom: 30px;">Application simulator status for job role: <strong style="color: var(--accent);">{{ role }}</strong></p>
 
-    <!-- Application Status details -->
-    <div style="margin-bottom: 35px;">
-        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 20px;">
-            Application Tracking Status
-        </h2>
-        
-        <div style="position: relative; padding-left: 30px; display: flex; flex-direction: column; gap: 24px;">
-            <!-- Vertical connecting line -->
-            <div style="position: absolute; left: 10px; top: 10px; bottom: 10px; width: 2px; background: linear-gradient(to bottom, #10b981 0%, var(--primary) 60%, var(--border-glass) 100%);"></div>
+    <!-- Holographic tracker timeline -->
+    <div style="background: rgba(4,1,10,0.6); border: 1.5px solid var(--border-glass); border-radius: 16px; padding: 30px; margin-bottom: 35px; text-align: left;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 25px; border-left: 4px solid var(--primary); padding-left: 8px;">
+            <i class="fa-solid fa-list-check"></i> Recruitment Stepper Status
+        </h3>
+
+        <!-- Stepper timeline lists -->
+        <div style="display: flex; flex-direction: column; gap: 20px; position: relative;">
+            <div style="position: absolute; top: 15px; left: 14px; bottom: 15px; width: 3px; background: rgba(255,255,255,0.06); z-index: 1;"></div>
+            <div style="position: absolute; top: 15px; left: 14px; height: 35%; width: 3px; background: var(--primary); z-index: 1;"></div>
 
             <!-- Step 1 -->
-            <div style="position: relative;">
-                <div style="position: absolute; left: -26px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
-                <h4 style="font-size: 0.95rem; font-weight: 700; color: #10b981;">Resume Uploaded & Registered</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Your application has been received internally at {{ company }}.</p>
+            <div style="display: flex; align-items: center; gap: 15px; z-index: 2; position: relative;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; box-shadow: 0 0 10px var(--primary);">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-bottom: 2px;">Application Received</h4>
+                    <p style="font-size: 0.78rem; color: var(--text-muted);">Resume parsing complete. Transferred to recruiting managers.</p>
+                </div>
             </div>
 
             <!-- Step 2 -->
-            <div style="position: relative;">
-                <div style="position: absolute; left: -26px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px #10b981;"></div>
-                <h4 style="font-size: 0.95rem; font-weight: 700; color: #10b981;">Academic Profile Verified</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">College profile and CGPA matched hiring filters.</p>
-            </div>
-
-            <!-- Step 3 (Current Active Step) -->
-            <div style="position: relative;">
-                <div style="position: absolute; left: -29px; top: 1px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg-dark); border: 3px solid var(--primary); box-shadow: 0 0 15px var(--primary); display: flex; justify-content: center; align-items: center;">
-                    <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--primary);"></div>
+            <div style="display: flex; align-items: center; gap: 15px; z-index: 2; position: relative;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; box-shadow: 0 0 10px var(--primary);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8rem;"></i>
                 </div>
-                <h4 style="font-size: 1rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-                    Technical Interview Scheduled <span class="match-badge" style="margin-left: 5px;">Active Step</span>
-                </h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; line-height: 1.5;">
-                    Congratulations! Your application is shortlisted. A technical evaluation round is scheduled. Please check your email for the detailed calendar invitation.
-                </p>
+                <div>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-bottom: 2px;">Biometric Profile Verified & Under Review</h4>
+                    <p style="font-size: 0.78rem; color: var(--text-muted);">Holographic face scan authentication has been matched to candidate identity logs.</p>
+                </div>
             </div>
 
-            <!-- Step 4 -->
-            <div style="position: relative; opacity: 0.5;">
-                <div style="position: absolute; left: -26px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--border-glass);"></div>
-                <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted);">Managerial Review</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Final evaluation round post technical interview.</p>
+            <!-- Step 3 -->
+            <div style="display: flex; align-items: center; gap: 15px; z-index: 2; position: relative;">
+                <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(4,1,10,0.85); border: 2px solid var(--border-glass); color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted); margin-bottom: 2px;">Technical Interview Scheduled</h4>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); opacity:0.6;">Waiting for HR manager checks.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Simulated success details -->
-    <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border-glass); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
-        <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; color: var(--secondary);">
-            <i class="fa-solid fa-circle-info"></i> Simulation Note
-        </h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-            This is a mock career portal integration representing an automated corporate routing pipeline. The candidate's details and custom resume uploads are saved in the system databases and forwarded to the administrator dashboard.
-        </p>
-    </div>
-
-    <div style="display: flex; gap: 15px; justify-content: flex-end;">
-        <a href="{{ url_for('upload') }}" class="nav-btn-outline" style="text-align: center; padding: 12px 24px; border-radius: 12px; font-weight: 700; text-decoration: none;">
-            Return to Dashboard
+    <!-- Actions -->
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <a href="{{ url_for('tracker') }}" class="btn-primary" style="max-width: 250px; text-decoration: none;">
+            Return to Application Tracker
         </a>
     </div>
 </div>
