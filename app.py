@@ -333,20 +333,33 @@ def analyze_resume_with_ai(resume_text, profile):
         return data
         
     except Exception as e:
-        print(f"Gemini API Error: {e}")
-        return {
-            "ats_score": 60,
-            "skill_gaps": ["Error during AI processing. Please check API configuration."],
+        print(f"Gemini API Error: {e}. Falling back to clean mock data.")
+        mock_data = {
+            "ats_score": 75,
+            "skill_gaps": ["Docker", "Kubernetes", "System Design", "Cloud Computing (AWS/GCP)"],
             "matching_jobs": [
                 {
-                    "role": "General Developer",
-                    "companies": ["Review API Configuration"],
-                    "salary_range": "N/A",
-                    "match_percentage": 50
+                    "role": "Full Stack Developer",
+                    "companies": ["Google", "Zoho", "Freshworks"],
+                    "salary_range": "8 - 15 LPA",
+                    "match_percentage": 85
+                },
+                {
+                    "role": "Software Engineer",
+                    "companies": ["Microsoft", "Cognizant", "TCS"],
+                    "salary_range": "6 - 12 LPA",
+                    "match_percentage": 78
+                },
+                {
+                    "role": "Junior DevOps Engineer",
+                    "companies": ["Infosys", "Wipro", "Amazon"],
+                    "salary_range": "7 - 11 LPA",
+                    "match_percentage": 65
                 }
             ],
-            "career_advice": "We encountered an issue communicating with the AI server. Please make sure your GEMINI_API_KEY in the Admin panel is active and correct."
+            "career_advice": "Your resume has a strong foundation. (Note: We encountered an issue communicating with the Gemini AI server. Please make sure your GEMINI_API_KEY is active and correct in the Admin settings. Displaying simulated report)."
         }
+        return mock_data
 
 # Routes
 @app.route('/')
