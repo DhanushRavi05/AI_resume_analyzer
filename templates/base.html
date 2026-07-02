@@ -28,7 +28,7 @@
             {% if current_user.is_authenticated %}
                 <li><a href="{{ url_for('upload') }}" class="nav-link {% if request.path == '/upload' %}active{% endif %}">Upload</a></li>
                 <li><a href="{{ url_for('resume_tracker') }}" class="nav-link {% if request.path == '/tracker' %}active{% endif %}">Tracker</a></li>
-                <li><a href="{{ url_for('about') }}" class="nav-link {% if request.path == '/about' %}active{% endif %}">About Creator</a></li>
+                <li><a href="{{ url_for('about_site') }}" class="nav-link {% if request.path == '/about' %}active{% endif %}">About Creator</a></li>
                 <li><a href="{{ url_for('profile_setup') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a></li>
                 {% if current_user.is_admin %}
                     <li><a href="{{ url_for('admin_panel') }}" class="nav-link {% if request.path == '/admin' %}active{% endif %}"><i class="fa-solid fa-lock"></i> Admin Settings</a></li>
