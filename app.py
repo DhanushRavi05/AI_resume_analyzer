@@ -114,6 +114,45 @@ with app.app_context():
     else:
         admin_user.password_hash = hashed_password
         
+    # Pre-seed user accounts for Dhanush to prevent deletion on Render container restarts
+    dhanush_1485 = User.query.filter_by(email='dhanushravi1485@gmail.com').first()
+    if not dhanush_1485:
+        u1 = User(
+            username='dhanush_1485',
+            email='dhanushravi1485@gmail.com',
+            password_hash=generate_password_hash('password123'),
+            is_admin=False
+        )
+        db.session.add(u1)
+        p1 = Profile(
+            user=u1,
+            college_name="Google verified university",
+            degree="B.E. Computer Science Engineering",
+            cgpa="8.5",
+            graduation_year="2025",
+            skills="Python, Flask, SQL, Java, Javascript"
+        )
+        db.session.add(p1)
+
+    dhanush_1735 = User.query.filter_by(email='dhanushravi1735@gmail.com').first()
+    if not dhanush_1735:
+        u2 = User(
+            username='dhanush_1735',
+            email='dhanushravi1735@gmail.com',
+            password_hash=generate_password_hash('password123'),
+            is_admin=False
+        )
+        db.session.add(u2)
+        p2 = Profile(
+            user=u2,
+            college_name="Google verified university",
+            degree="B.E. Computer Science Engineering",
+            cgpa="8.5",
+            graduation_year="2025",
+            skills="Python, Flask, SQL, Java, Javascript"
+        )
+        db.session.add(p2)
+        
     db.session.commit()
     print("\n=== DEFAULT ADMIN ACCOUNT CONFIGURATION ACTIVE ===")
     print("Username: dhanush | Password: admin123")
