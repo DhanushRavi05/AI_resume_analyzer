@@ -9,7 +9,7 @@
         <div class="glass-container" style="padding: 35px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h1 class="form-title" style="text-align: left; margin-bottom: 5px;">Analyze Resume</h1>
-                <p class="form-subtitle" style="text-align: left; margin-bottom: 30px;">Drop your PDF resume to trigger real-time AI and biometric validations.</p>
+                <p class="form-subtitle" style="text-align: left; margin-bottom: 30px;">Drop your PDF resume to trigger real-time AI and face scan validations.</p>
 
                 <!-- Upload Form -->
                 <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
@@ -26,7 +26,7 @@
                     </div>
                     
                     <button type="submit" class="btn-primary" style="margin-top: 25px;">
-                        Start Biometric Scan & Analysis <i class="fa-solid fa-shield-halved"></i>
+                        Start Face Scan & Analysis <i class="fa-solid fa-shield-halved"></i>
                     </button>
                 </form>
             </div>
@@ -56,8 +56,8 @@
                 </h2>
                 <p class="form-subtitle" style="text-align: left; margin-bottom: 20px; font-size: 0.82rem;">Click to check structural layout standards to pass technical recruitment metrics.</p>
                 
-                <div style="display: flex; justify-content: center; align-items: center; padding: 15px 0;">
-                    <i class="fa-solid fa-file-invoice" style="font-size: 8rem; color: var(--text-muted); opacity: 0.25; filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.45));"></i>
+                <div style="text-align: center; padding: 15px 0;">
+                    <img src="{{ url_for('static', filename='images/proper_resume_guide.jpg') }}" alt="Proper Resume Guide" style="max-width: 100%; max-height: 180px; border-radius: 8px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25); border: 1px solid var(--border-glass);">
                 </div>
             </div>
             

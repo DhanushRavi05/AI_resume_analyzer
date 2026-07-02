@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Mobile OTP — ResumeAI{% endblock %}
+
+{% block content %}
+<div class="glass-container form-card" style="margin: 0 auto; animation: pageEntrance 0.4s ease-out; text-align: center;">
+    <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(168, 85, 247, 0.1); border: 2px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--primary); margin: 0 auto 20px;">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+    </div>
+
+    <h1 class="form-title" style="font-size: 2rem;">OTP Verification</h1>
+    <p class="form-subtitle" style="margin-top: 5px;">We sent a 6-digit One-Time Password to <strong style="color: #ffffff;">{{ mobile }}</strong></p>
+    
+    <!-- Testing Alert showing the OTP code directly so they don't get stuck! -->
+    <div style="background: rgba(124, 58, 237, 0.1); border: 1.5px solid var(--border-glass); border-radius: 12px; padding: 15px; margin-bottom: 25px; text-align: left;">
+        <h4 style="color: var(--primary); font-size: 0.9rem; font-weight: 700; margin-bottom: 5px;">
+            <i class="fa-solid fa-circle-info"></i> Demo OTP System
+        </h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+            Your dynamic OTP Code is: <strong style="color: #ffffff; font-size: 1rem; border-bottom: 1.5px dashed var(--primary); letter-spacing: 1px;">{{ otp }}</strong>. 
+            (This is also printed to the server terminal logs).
+        </p>
+    </div>
+
+    <form action="{{ url_for('verify_otp') }}" method="POST">
+        <!-- OTP Input -->
+        <div class="form-group" style="text-align: center;">
+            <label for="otp_code" class="form-label" style="display: block; margin-bottom: 12px; letter-spacing: 1px;">Enter Verification Code</label>
+            <input type="text" id="otp_code" name="otp_code" class="form-control" placeholder="123456" required maxlength="6" pattern="\d{6}" autocomplete="one-time-code" 
+                   style="font-size: 1.6rem; letter-spacing: 8px; text-align: center; font-weight: 800; max-width: 240px; margin: 0 auto; padding: 8px;">
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn-primary" style="margin-top: 25px;">
+            Verify & Create Account <i class="fa-solid fa-user-check"></i>
+        </button>
+    </form>
+</div>
+{% endblock %}

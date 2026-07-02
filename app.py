@@ -34,6 +34,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
+    mobile_number = db.Column(db.String(50), nullable=True)
     password_hash = db.Column(db.String(250), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     profile = db.relationship('Profile', backref='user', uselist=False, cascade="all, delete-orphan")
@@ -79,7 +80,7 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
     
-    # Auto-migration schema check: Add parser_backend column if it doesn't exist
+    # Auto-migration schema check: Add parser_backend and mobile_number columns if they don't exist
     try:
         from sqlalchemy import text
         with db.engine.connect() as conn:
@@ -87,6 +88,13 @@ with app.app_context():
             columns = [row[1] for row in result.fetchall()]
             if 'parser_backend' not in columns:
                 conn.execute(text("ALTER TABLE analysis ADD COLUMN parser_backend VARCHAR(50) DEFAULT 'Python'"))
+                conn.commit()
+                
+            # Check user table for mobile_number column
+            result_user = conn.execute(text("PRAGMA table_info(user)"))
+            columns_user = [row[1] for row in result_user.fetchall()]
+            if 'mobile_number' not in columns_user:
+                conn.execute(text("ALTER TABLE user ADD COLUMN mobile_number VARCHAR(50) DEFAULT 'N/A'"))
                 conn.commit()
     except Exception as db_err:
         print(f"[DB] Migration check failed: {db_err}")
@@ -98,6 +106,7 @@ with app.app_context():
         admin = User(
             username='dhanush', 
             email='dhanush@resumeai.com', 
+            mobile_number='+910000000000',
             password_hash=hashed_password, 
             is_admin=True
         )
@@ -113,6 +122,7 @@ with app.app_context():
         db.session.add(admin_profile)
     else:
         admin_user.password_hash = hashed_password
+        admin_user.mobile_number = '+910000000000'
         
     # Pre-seed user accounts for Dhanush to prevent deletion on Render container restarts
     dhanush_1485 = User.query.filter_by(email='dhanushravi1485@gmail.com').first()
@@ -120,6 +130,7 @@ with app.app_context():
         dhanush_1485 = User(
             username='dhanush_1485',
             email='dhanushravi1485@gmail.com',
+            mobile_number='+919876543210',
             password_hash=generate_password_hash('password123'),
             is_admin=False
         )
@@ -127,6 +138,7 @@ with app.app_context():
         db.session.flush()
         
     dhanush_1485.password_hash = generate_password_hash('password123')
+    dhanush_1485.mobile_number = '+919876543210'
     
     if not dhanush_1485.profile:
         p1 = Profile(
@@ -144,6 +156,7 @@ with app.app_context():
         dhanush_1735 = User(
             username='dhanush_1735',
             email='dhanushravi1735@gmail.com',
+            mobile_number='+919876543211',
             password_hash=generate_password_hash('password123'),
             is_admin=False
         )
@@ -151,6 +164,7 @@ with app.app_context():
         db.session.flush()
         
     dhanush_1735.password_hash = generate_password_hash('password123')
+    dhanush_1735.mobile_number = '+919876543211'
     
     if not dhanush_1735.profile:
         p2 = Profile(
@@ -423,12 +437,14 @@ def register():
         return redirect(url_for('upload'))
         
     if request.method == 'POST':
+        import random
         username = request.form.get('username').strip()
         email = request.form.get('email').strip()
+        mobile_number = request.form.get('mobile_number').strip()
         password = request.form.get('password')
         
         # Validations
-        if not username or not email or not password:
+        if not username or not email or not password or not mobile_number:
             flash('All fields are required!', 'danger')
             return redirect(url_for('register'))
             
@@ -441,19 +457,72 @@ def register():
             flash('Username or Email already registered!', 'danger')
             return redirect(url_for('register'))
             
-        hashed_password = generate_password_hash(password)
-        is_admin = False
-        if username.lower() == 'dhanush' or email.lower() == 'dhanush@resumeai.com':
-            is_admin = True
-            
-        new_user = User(username=username, email=email, password_hash=hashed_password, is_admin=is_admin)
-        db.session.add(new_user)
-        db.session.commit()
+        # Generate random 6-digit OTP code
+        otp = str(random.randint(100000, 999999))
         
-        flash('Registration successful! Please login.', 'success')
-        return redirect(url_for('login'))
+        # Store temporary data in Flask Session
+        from flask import session
+        session['temp_reg'] = {
+            'username': username,
+            'email': email,
+            'mobile_number': mobile_number,
+            'password': password
+        }
+        session['reg_otp'] = otp
+        
+        print("\n" + "="*40)
+        print(f"🎙️ [OTP SYSTEM] CODE {otp} SENT TO MOBILE: {mobile_number}")
+        print("="*40 + "\n")
+        
+        flash(f'Verification OTP sent to {mobile_number}!', 'info')
+        return redirect(url_for('verify_otp'))
         
     return render_template('register.html')
+
+@app.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    from flask import session
+    temp_reg = session.get('temp_reg')
+    reg_otp = session.get('reg_otp')
+    
+    if not temp_reg or not reg_otp:
+        flash('Session expired. Please register again.', 'warning')
+        return redirect(url_for('register'))
+        
+    if request.method == 'POST':
+        otp_code = request.form.get('otp_code', '').strip()
+        if otp_code == reg_otp:
+            # Create user database record
+            username = temp_reg['username']
+            email = temp_reg['email']
+            mobile_number = temp_reg['mobile_number']
+            password = temp_reg['password']
+            
+            hashed_password = generate_password_hash(password)
+            is_admin = False
+            if username.lower() == 'dhanush' or email.lower() == 'dhanush@resumeai.com':
+                is_admin = True
+                
+            new_user = User(
+                username=username,
+                email=email,
+                mobile_number=mobile_number,
+                password_hash=hashed_password,
+                is_admin=is_admin
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Clear session
+            session.pop('temp_reg', None)
+            session.pop('reg_otp', None)
+            
+            flash('Registration complete! Please login.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid OTP code. Please check and try again!', 'danger')
+            
+    return render_template('verify_otp.html', mobile=temp_reg['mobile_number'], otp=reg_otp)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
