@@ -371,4 +371,245 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Facebook Sign-In Mock Popup Overlay
+    const facebookLoginBtn = document.getElementById('facebook-login-btn');
+    if (facebookLoginBtn) {
+        facebookLoginBtn.addEventListener('click', () => {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.background = 'rgba(0, 0, 0, 0.7)';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.zIndex = '9999';
+            overlay.style.backdropFilter = 'blur(10px)';
+            
+            const modal = document.createElement('div');
+            modal.style.background = '#ffffff';
+            modal.style.color = '#3c4043';
+            modal.style.borderRadius = '8px';
+            modal.style.padding = '40px 35px';
+            modal.style.width = '100%';
+            modal.style.maxWidth = '440px';
+            modal.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.3)';
+            modal.style.fontFamily = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+            modal.style.textAlign = 'center';
+            modal.style.boxSizing = 'border-box';
+            
+            modal.innerHTML = `
+                <div id="fb-account-chooser" style="display: block; width: 100%;">
+                    <i class="fa-brands fa-facebook" style="color: #1877f2; font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3 style="font-size: 1.45rem; font-weight: 600; margin-bottom: 5px; color: #1c1e21;">Log in with Facebook</h3>
+                    <p style="font-size: 0.95rem; color: #606770; margin-bottom: 25px;">to continue to <span style="font-weight: 600;">ResumeAI</span></p>
+                    
+                    <!-- Account List -->
+                    <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; text-align: left; border-top: 1px solid #dadce0;">
+                        <!-- Option 1 -->
+                        <div class="fb-acc-opt" data-email="dhanushravi1485@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
+                            <div style="width: 28px; height: 28px; border-radius: 4px; background: #1877f2; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;"><i class="fa-brands fa-facebook-f" style="font-size: 0.75rem;"></i></div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043; line-height: 1.2;">Dhanush Ravi</div>
+                                <div style="font-size: 0.75rem; color: #606770; line-height: 1.2;">dhanushravi1485@gmail.com</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Option 2 -->
+                        <div class="fb-acc-opt" data-email="dhanushravi1735@gmail.com" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
+                            <div style="width: 28px; height: 28px; border-radius: 4px; background: #1877f2; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0;"><i class="fa-brands fa-facebook-f" style="font-size: 0.75rem;"></i></div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043; line-height: 1.2;">Dhanush Ravi</div>
+                                <div style="font-size: 0.75rem; color: #606770; line-height: 1.2;">dhanushravi1735@gmail.com</div>
+                            </div>
+                        </div>
+
+                        <!-- Use another account -->
+                        <div id="fb-use-another-btn" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #dadce0; cursor: pointer; transition: background 0.2s; background: transparent;">
+                            <div style="width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 1px solid #dadce0; color: #606770; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-regular fa-user" style="font-size: 0.85rem;"></i>
+                            </div>
+                            <div style="font-weight: 600; font-size: 0.85rem; color: #3c4043;">Use another account</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right; width: 100%;">
+                        <button id="fb-popup-close-chooser" style="background: transparent; border: none; color: #1877f2; font-weight: 600; font-size: 0.9rem; cursor: pointer; padding: 10px 20px; transition: background 0.2s;">Cancel</button>
+                    </div>
+                </div>
+
+                <div id="fb-custom-signin-view" style="display: none; width: 100%;">
+                    <i class="fa-brands fa-facebook" style="color: #1877f2; font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3 style="font-size: 1.45rem; font-weight: 600; margin-bottom: 5px; color: #1c1e21; font-family: 'Helvetica Neue', sans-serif;">Facebook Log In</h3>
+                    <p style="font-size: 0.95rem; color: #606770; margin-bottom: 25px;">Enter your credentials</p>
+                    
+                    <!-- Custom Email Input -->
+                    <div style="text-align: left; margin-bottom: 20px; width: 100%;">
+                        <input type="email" id="fb-custom-email" style="width: 100%; padding: 14px 12px; border: 1px solid #dadce0; border-radius: 4px; font-size: 1rem; box-sizing: border-box; outline: none; transition: border-color 0.2s;" placeholder="Email address or phone number">
+                        <p id="fb-error-msg" style="color: #d93025; font-size: 0.8rem; margin-top: 6px; display: none; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid email address</p>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 30px;">
+                        <button id="fb-popup-back" style="background: transparent; border: none; color: #1877f2; font-weight: 600; font-size: 0.9rem; cursor: pointer; padding: 10px 0;">Back</button>
+                        <button id="fb-popup-signin" style="background: #1877f2; color: #ffffff; border: none; padding: 10px 24px; border-radius: 4px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: background 0.2s;">Log In</button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            const chooserView = modal.querySelector('#fb-account-chooser');
+            const customView = modal.querySelector('#fb-custom-signin-view');
+            const emailInput = modal.querySelector('#fb-custom-email');
+            const signinBtn = modal.querySelector('#fb-popup-signin');
+            const errorMsg = modal.querySelector('#fb-error-msg');
+            const useAnotherBtn = modal.querySelector('#fb-use-another-btn');
+            const backBtn = modal.querySelector('#fb-popup-back');
+            
+            useAnotherBtn.addEventListener('click', () => {
+                chooserView.style.display = 'none';
+                customView.style.display = 'block';
+                setTimeout(() => emailInput.focus(), 100);
+            });
+            
+            backBtn.addEventListener('click', () => {
+                customView.style.display = 'none';
+                chooserView.style.display = 'block';
+                errorMsg.style.display = 'none';
+                emailInput.style.borderColor = '#dadce0';
+            });
+            
+            const options = modal.querySelectorAll('.fb-acc-opt');
+            options.forEach(opt => {
+                opt.addEventListener('mouseenter', () => opt.style.background = '#f2f3f5');
+                opt.addEventListener('mouseleave', () => opt.style.background = 'transparent');
+                
+                opt.addEventListener('click', () => {
+                    const selectedEmail = opt.getAttribute('data-email');
+                    window.location.href = `/login/facebook-mock?email=${encodeURIComponent(selectedEmail)}`;
+                });
+            });
+            
+            useAnotherBtn.addEventListener('mouseenter', () => useAnotherBtn.style.background = '#f2f3f5');
+            useAnotherBtn.addEventListener('mouseleave', () => useAnotherBtn.style.background = 'transparent');
+            
+            emailInput.addEventListener('focus', () => emailInput.style.borderColor = '#1877f2');
+            emailInput.addEventListener('blur', () => emailInput.style.borderColor = '#dadce0');
+            
+            function handleFbSignIn() {
+                const emailVal = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!emailVal || !emailRegex.test(emailVal)) {
+                    errorMsg.style.display = 'block';
+                    emailInput.style.borderColor = '#d93025';
+                    return;
+                }
+                
+                errorMsg.style.display = 'none';
+                emailInput.style.borderColor = '#1877f2';
+                window.location.href = `/login/facebook-mock?email=${encodeURIComponent(emailVal)}`;
+            }
+            
+            signinBtn.addEventListener('click', handleFbSignIn);
+            emailInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleFbSignIn();
+                }
+            });
+            
+            modal.querySelector('#fb-popup-close-chooser').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+            });
+        });
+    }
+
+    // 3D Card mouse tilt effect
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    tiltCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((centerY - y) / centerY) * 10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        });
+    });
+
+    // Landing / Welcome Page TTS (Female Voice)
+    const isLoginPage = window.location.pathname === '/login' || window.location.pathname === '/';
+    if (isLoginPage) {
+        const speakWelcome = () => {
+            if ('speechSynthesis' in window) {
+                if (window.hasSpokenWelcome) return;
+                window.hasSpokenWelcome = true;
+                
+                // Pre-fetch voices to satisfy Chrome's async loading
+                window.speechSynthesis.getVoices();
+                
+                const msg = new SpeechSynthesisUtterance("Welcome to ResumeAI! Please log in or register to analyze your resume.");
+                const voices = window.speechSynthesis.getVoices();
+                // Find a female English voice
+                const femaleVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.startsWith('en') && (name.includes('female') || name.includes('zira') || name.includes('google us english') || name.includes('google uk english female') || name.includes('natural'));
+                });
+                
+                if (femaleVoice) {
+                    msg.voice = femaleVoice;
+                }
+                msg.rate = 0.95;
+                msg.pitch = 1.1;
+                window.speechSynthesis.speak(msg);
+            }
+        };
+        
+        // Trigger on interaction to respect browser autoplay security block
+        document.addEventListener('click', speakWelcome, { once: true });
+        document.addEventListener('mouseover', speakWelcome, { once: true });
+        document.addEventListener('focusin', speakWelcome, { once: true });
+    }
+
+    // Analysis Report Complete Page TTS (Female Voice)
+    const isReportPage = window.location.pathname.startsWith('/analyze/');
+    if (isReportPage) {
+        const speakThanks = () => {
+            if ('speechSynthesis' in window) {
+                if (window.hasSpokenThanks) return;
+                window.hasSpokenThanks = true;
+                
+                window.speechSynthesis.getVoices();
+                
+                const msg = new SpeechSynthesisUtterance("Thank you for using this site! Your resume analysis is complete. You can view your match score, missing skills, and apply to recommended companies below.");
+                const voices = window.speechSynthesis.getVoices();
+                const femaleVoice = voices.find(voice => {
+                    const name = voice.name.toLowerCase();
+                    return voice.lang.startsWith('en') && (name.includes('female') || name.includes('zira') || name.includes('google us english') || name.includes('google uk english female') || name.includes('natural'));
+                });
+                
+                if (femaleVoice) {
+                    msg.voice = femaleVoice;
+                }
+                msg.rate = 0.95;
+                msg.pitch = 1.1;
+                window.speechSynthesis.speak(msg);
+            }
+        };
+        
+        document.addEventListener('click', speakThanks, { once: true });
+        document.addEventListener('mouseover', speakThanks, { once: true });
+        document.addEventListener('focusin', speakThanks, { once: true });
+    }
 });

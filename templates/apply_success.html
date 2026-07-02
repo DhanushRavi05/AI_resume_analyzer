@@ -3,39 +3,41 @@
 {% block title %}Application Success — ResumeAI{% endblock %}
 
 {% block content %}
-<div class="glass-container form-card" style="margin: 0 auto; max-width: 600px; text-align: center;">
-    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 2px solid #10b981; display: flex; justify-content: center; align-items: center; margin: 0 auto 24px; color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);">
-        <i class="fa-solid fa-check" style="font-size: 2.5rem;"></i>
+<div class="glass-container form-card" style="margin: 0 auto; max-width: 600px; text-align: center; padding: 45px 35px; animation: pageEntrance 0.4s ease-out;">
+    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(34, 197, 94, 0.1); border: 2.5px solid #22c55e; color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 24px; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);">
+        <i class="fa-solid fa-circle-check"></i>
     </div>
 
-    <h1 class="form-title" style="font-size: 2.2rem; margin-bottom: 12px; background: linear-gradient(135deg, #10b981 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        Application Sent!
-    </h1>
-    
-    <p style="color: var(--text-primary); font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">
-        Applied to {{ company }} as a {{ role }}
-    </p>
-    
-    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 30px;">
-        A copy of your application details has been sent to your email. Check your console/terminal to review the mail content log.
+    <h1 class="form-title" style="font-size: 2.2rem; margin-bottom: 10px;">Success!</h1>
+    <p class="form-subtitle" style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 25px;">
+        Your job application to <strong style="color: var(--secondary);">{{ company }}</strong> for the <strong style="color: var(--accent);">{{ role }}</strong> position has been submitted successfully!
     </p>
 
-    <!-- Real Company Redirect -->
-    <div style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 16px; padding: 24px; margin-bottom: 30px; text-align: left;">
-        <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--secondary); display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-square-arrow-up-right"></i> Next Step: Apply on Official Portal
-        </h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-            To complete your application process, click the button below to visit the official career opportunities page for <strong>{{ company }}</strong>.
+    <!-- Details Card -->
+    <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid var(--border-glass); border-radius: 12px; padding: 20px; text-align: left; margin-bottom: 30px;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--secondary); margin-bottom: 12px; border-bottom: 1px solid var(--border-glass); padding-bottom: 5px;">Application Overview</h4>
+        <p style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">
+            <strong style="color: var(--text-muted);">Company Name:</strong> {{ company }}
         </p>
-        <a href="{{ real_url }}" target="_blank" class="btn-primary" style="margin-top: 0; padding: 12px 20px; font-size: 0.95rem; font-weight: 700; text-decoration: none; display: inline-flex; justify-content: center; width: 100%;">
-            Apply on {{ company }} Careers <i class="fa-solid fa-up-right-from-square" style="font-size: 0.85rem;"></i>
-        </a>
+        <p style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-primary);">
+            <strong style="color: var(--text-muted);">Target Job Role:</strong> {{ role }}
+        </p>
+        <p style="font-size: 0.9rem; color: var(--text-primary);">
+            <strong style="color: var(--text-muted);">Status:</strong> <span style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; color: #22c55e;">Applied</span>
+        </p>
     </div>
 
-    <div style="display: flex; gap: 15px; justify-content: center;">
-        <a href="{{ url_for('upload') }}" class="nav-btn-outline" style="text-align: center; width: 100%; padding: 12px 0; border-radius: 12px; font-weight: 700;">
-            <i class="fa-solid fa-house"></i> Home Dashboard
+    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 35px;">
+        <i class="fa-solid fa-envelope" style="color: var(--accent);"></i> An email confirmation containing your application logs and profile pitch note sign-off details has been sent to your email.
+    </p>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 15px;">
+        <a href="{{ url_for('upload') }}" class="nav-btn-outline" style="flex: 1; text-align: center; text-decoration: none; padding: 12px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin: 0;">
+            Upload New Resume
+        </a>
+        <a href="{{ real_url }}" class="btn-primary" style="flex: 1.5; margin: 0; padding: 12px; justify-content: center; text-decoration: none;">
+            View Career Portal <i class="fa-solid fa-arrow-right-long"></i>
         </a>
     </div>
 </div>

@@ -29,10 +29,17 @@
         <div style="flex: 1; height: 1px; background: var(--border-glass);"></div>
     </div>
 
-    <button type="button" id="google-login-btn" class="nav-btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 0.95rem; border-radius: 12px; cursor: pointer; transition: var(--transition-smooth); background: rgba(255, 255, 255, 0.015);">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" style="width: 18px; height: 18px;">
-        Sign in with Google
-    </button>
+    <div style="display: flex; gap: 10px; margin-top: 5px;">
+        <button type="button" id="google-login-btn" class="nav-btn-outline" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-size: 0.9rem; border-radius: 12px; cursor: pointer; transition: var(--transition-smooth); background: rgba(255, 255, 255, 0.015);">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo" style="width: 16px; height: 16px;">
+            Google
+        </button>
+
+        <button type="button" id="facebook-login-btn" class="btn-facebook" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-size: 0.9rem; border-radius: 12px; cursor: pointer;">
+            <i class="fa-brands fa-facebook" style="font-size: 1.1rem;"></i>
+            Facebook
+        </button>
+    </div>
     
     <div class="form-footer" style="margin-top: 25px;">
         Don't have an account? <a href="{{ url_for('register') }}">Create one here</a>

@@ -30,6 +30,12 @@
                     Needs optimization. Critical skills are missing.
                 {% endif %}
             </p>
+            
+            <!-- Parser Backend indicator -->
+            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--border-glass); font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-server" style="color: var(--secondary);"></i> 
+                <span>Engine: <strong>{{ analysis.parser_backend }}</strong></span>
+            </div>
         </div>
 
         <!-- Warning if Mocking API Key -->
@@ -54,7 +60,7 @@
             
             <div class="job-grid">
                 {% for job in matching_jobs %}
-                    <div class="job-card">
+                    <div class="job-card tilt-card">
                         <div class="job-header">
                             <h3 class="job-role">{{ job.role }}</h3>
                             <span class="match-badge">{{ job.match_percentage }}% Match</span>

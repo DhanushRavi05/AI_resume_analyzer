@@ -58,6 +58,7 @@ class Analysis(db.Model):
     skill_gaps = db.Column(db.Text, nullable=False) # JSON list
     matching_jobs = db.Column(db.Text, nullable=False) # JSON list of dicts
     career_advice = db.Column(db.Text, nullable=True)
+    parser_backend = db.Column(db.String(50), default="Python")
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
 class Setting(db.Model):
@@ -109,10 +110,17 @@ with app.app_context():
         
     db.session.commit()
     print("\n=== DEFAULT ADMIN ACCOUNT CREATED ===")
-    # Print credentials in terminal for convenience
     print("Email: dhanush@resumeai.com")
     print("Password: admin123")
     print("=====================================\n")
+
+    # Compile ResumeParser.java on startup if javac is available
+    try:
+        import subprocess
+        subprocess.run(['javac', 'ResumeParser.java'], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("=== JAVA BACKEND PARSER COMPILED SUCCESSFULLY ===\n")
+    except Exception as e:
+        print("=== JAVA COMPILER NOT FOUND. USING PYTHON FALLBACK PARSER ===\n")
 
 # Helper: Retrieve Gemini Key from Database or Environment
 def get_gemini_api_key():
@@ -616,14 +624,36 @@ def upload():
             return redirect(request.url)
             
         if file and file.filename.endswith('.pdf'):
-            # Extract text
-            text = extract_text_from_pdf(file)
+            # Save uploaded file temporarily to run Java subprocess on path
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+            
+            # Run Java parser subprocess check
+            use_java = False
+            try:
+                import subprocess
+                if os.path.exists('ResumeParser.class'):
+                    # Run Java ResumeParser subprocess
+                    res = subprocess.run(['java', 'ResumeParser', filepath], capture_output=True, text=True, check=True)
+                    java_meta = json.loads(res.stdout.strip())
+                    if java_meta.get('status') == 'success':
+                        use_java = True
+                        print(f"Java Parser parsed successfully: {java_meta}")
+            except Exception as e:
+                print(f"Java subprocess failed/not available: {e}. Falling back to Python PyPDF2.")
+                
+            # Open saved file and extract text via Python PyPDF2 helper
+            with open(filepath, 'rb') as f:
+                text = extract_text_from_pdf(f)
+                
             if not text or len(text.strip()) < 10:
-                # Fallback text if PDF is scanned or unreadable (ensures ANY uploaded PDF works!)
                 text = f"Resume Document. Candidate Academic Profile: {current_user.profile.college_name}, Degree: {current_user.profile.degree}, Skills: {current_user.profile.skills}. Professional profile: Technical Developer with experience in web engineering, Python, HTML/CSS, SQL database integration, Javascript frameworks, and application development."
                 
             # Perform AI analysis
             analysis_result = analyze_resume_with_ai(text, current_user.profile)
+            
+            parser_backend_used = "Java JDK & Python" if use_java else "Python (Fallback)"
             
             # Save analysis results
             new_analysis = Analysis(
@@ -631,7 +661,8 @@ def upload():
                 ats_score=analysis_result['ats_score'],
                 skill_gaps=json.dumps(analysis_result['skill_gaps']),
                 matching_jobs=json.dumps(analysis_result['matching_jobs']),
-                career_advice=analysis_result.get('career_advice', '')
+                career_advice=analysis_result.get('career_advice', ''),
+                parser_backend=parser_backend_used
             )
             db.session.add(new_analysis)
             db.session.commit()
@@ -815,6 +846,44 @@ def update_settings():
         flash('Gemini API Key removed. Running in Mock Mode.', 'warning')
         
     return redirect(url_for('admin_panel'))
+
+# Visual Resume Formatting Blueprint checklist Guide Route
+@app.route('/guide')
+def resume_guide():
+    return render_template('guide.html')
+
+# Simulated Facebook Login route
+@app.route('/login/facebook-mock')
+def facebook_mock_login():
+    email = request.args.get('email', 'dhanush.facebook@gmail.com').strip()
+    username = email.split('@')[0]
+    
+    # Check if user exists
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        # Create user
+        hashed_password = generate_password_hash('facebookauthbypass123')
+        user = User(username=username, email=email, password_hash=hashed_password, is_admin=False)
+        db.session.add(user)
+        db.session.commit()
+        
+    login_user(user)
+    flash('Logged in successfully via Facebook!', 'success')
+    
+    # If user has no profile, create a default one to save time
+    if not user.profile:
+        profile = Profile(
+            user_id=user.id,
+            college_name="Facebook Verified User",
+            degree="Engineering Candidate",
+            cgpa="8.2",
+            graduation_year="2025",
+            skills="Python, SQL, JavaScript"
+        )
+        db.session.add(profile)
+        db.session.commit()
+        
+    return redirect(url_for('upload'))
 
 if __name__ == '__main__':
     app.run(debug=True)
