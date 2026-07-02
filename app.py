@@ -120,6 +120,7 @@ with app.app_context():
         dhanush_1485 = User(
             username='dhanush_1485',
             email='dhanushravi1485@gmail.com',
+            password_hash=generate_password_hash('password123'),
             is_admin=False
         )
         db.session.add(dhanush_1485)
@@ -143,6 +144,7 @@ with app.app_context():
         dhanush_1735 = User(
             username='dhanush_1735',
             email='dhanushravi1735@gmail.com',
+            password_hash=generate_password_hash('password123'),
             is_admin=False
         )
         db.session.add(dhanush_1735)
