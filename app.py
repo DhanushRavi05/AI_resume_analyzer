@@ -178,9 +178,7 @@ with app.app_context():
         db.session.add(p2)
         
     db.session.commit()
-    print("\n=== DEFAULT ADMIN ACCOUNT CONFIGURATION ACTIVE ===")
-    print("Username: dhanush | Password: admin123")
-    print("==================================================\n")
+    db.session.commit()
 
     # Compile ResumeParser.java on startup if javac is available
     try:
@@ -788,8 +786,9 @@ def demo_portal():
 @app.route('/admin')
 @login_required
 def admin_panel():
-    if not current_user.is_admin:
-        abort(403)
+    if not current_user.is_admin or current_user.username.lower() != 'dhanush':
+        flash('Unauthorized access! Only the owner Dhanush Ravi can access Admin Settings.', 'danger')
+        return redirect(url_for('upload'))
         
     users = User.query.all()
     all_data = []
@@ -810,8 +809,9 @@ def admin_panel():
 @app.route('/admin/settings', methods=['POST'])
 @login_required
 def update_settings():
-    if not current_user.is_admin:
-        abort(403)
+    if not current_user.is_admin or current_user.username.lower() != 'dhanush':
+        flash('Unauthorized access! Only the owner Dhanush Ravi can access Admin Settings.', 'danger')
+        return redirect(url_for('upload'))
     gemini_key = request.form.get('gemini_key', '').strip()
     
     setting = Setting.query.filter_by(key='gemini_api_key').first()
