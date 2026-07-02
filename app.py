@@ -82,6 +82,21 @@ def load_user(user_id):
 # Create database tables and seed default admin user
 with app.app_context():
     db.create_all()
+    
+    # Dynamic database migration: Add parser_backend column to analysis table if missing
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            # Check table details
+            result = conn.execute(text("PRAGMA table_info(analysis)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'parser_backend' not in columns:
+                conn.execute(text("ALTER TABLE analysis ADD COLUMN parser_backend VARCHAR(50) DEFAULT 'Python'"))
+                conn.commit()
+                print("=== DATABASE MIGRATION SUCCESSFUL: ADDED COLUMN parser_backend ===")
+    except Exception as db_mig_err:
+        print(f"Database migration check skipped: {db_mig_err}")
+
     # Check if admin exists, if not, create one
     admin_user = User.query.filter_by(username='dhanush').first()
     hashed_password = generate_password_hash('admin123')
@@ -224,7 +239,6 @@ def analyze_resume_with_ai(resume_text, profile):
     # Real Gemini API analysis
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""
         You are an expert ATS (Applicant Tracking System) software and Technical Recruiter.
         Analyze the following resume text along with the candidate's academic profile.
@@ -254,7 +268,20 @@ def analyze_resume_with_ai(resume_text, profile):
             "career_advice": "A paragraph offering actionable guidance for profile improvement."
         }}
         """
-        response = model.generate_content(prompt)
+        
+        # Try gemini-1.5-flash first, fallback to gemini-pro if not found (404)
+        try:
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
+        except Exception as flash_err:
+            err_msg = str(flash_err).lower()
+            if "not found" in err_msg or "404" in err_msg or "not_found" in err_msg:
+                print(f"gemini-1.5-flash not found or not supported. Falling back to gemini-pro. Error: {flash_err}")
+                model = genai.GenerativeModel('gemini-pro')
+                response = model.generate_content(prompt)
+            else:
+                raise flash_err
+                
         response_text = response.text.strip()
         
         # Robustly extract JSON block if wrapped in markdown code blocks
