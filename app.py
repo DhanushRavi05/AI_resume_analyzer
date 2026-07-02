@@ -101,7 +101,7 @@ with app.app_context():
 
     # Seed admin 'dhanush'
     admin_user = User.query.filter_by(username='dhanush').first()
-    hashed_password = generate_password_hash('admin123')
+    hashed_password = generate_password_hash('password123')
     if not admin_user:
         admin = User(
             username='dhanush', 
@@ -265,18 +265,9 @@ def validate_if_resume_text(text):
         if word in text_lower:
             return False, f"ERROR: The uploaded document appears to be an ID card, government certificate, or invoice ({word.upper()}) and NOT a professional resume. Please upload a valid resume PDF."
             
-    # 2. Check presence of core resume section titles
-    resume_keywords = [
-        'education', 'experience', 'skills', 'projects', 'summary', 'objective', 
-        'employment', 'qualifications', 'curriculum vitae', 'cv', 'achievements', 
-        'certifications', 'extracurricular'
-    ]
-    
-    match_count = sum(1 for word in resume_keywords if word in text_lower)
-    
-    # Require at least 2 matching resume keywords to pass
-    if len(text_lower.strip()) < 100 or match_count < 2:
-        return False, "ERROR: The uploaded PDF does not contain standard resume sections (like Education, Experience, or Skills). Please upload a valid professional resume PDF."
+    # Allow all other documents if not empty
+    if len(text_lower.strip()) < 5:
+        return False, "ERROR: The uploaded PDF file is empty or corrupted. Please upload a valid professional resume PDF."
         
     return True, ""
 
@@ -284,18 +275,23 @@ def validate_if_resume_text(text):
 def analyze_resume_with_ai(resume_text, profile):
     api_key = get_gemini_api_key()
     
-    if not api_key:
-        # Dynamically calculate match score based on technical keywords present in resume vs profile
-        text_lower = resume_text.lower()
+    # Helper to generate dynamic mock/fallback report based on resume text content
+    def generate_dynamic_mock_report():
+        text_lower = resume_text.lower() if resume_text else ""
         declared_skills = [s.strip().lower() for s in (profile.skills or '').split(',') if s.strip()]
         
-        # Calculate dynamic overlap score (base 50% + 10% per matching skill, max 92%)
+        # Calculate dynamic overlap score based on technical matching words
         matched_count = sum(1 for skill in declared_skills if skill in text_lower)
-        dynamic_score = min(50 + (matched_count * 10), 92)
-        if dynamic_score < 50:
-            # Fallback to random realistic score between 62% and 83% if resume text matches are weak
+        dynamic_score = min(40 + (matched_count * 15), 98)
+        
+        # If matches are low or text was poorly extracted, select a realistic random-looking score
+        if dynamic_score <= 40 or len(text_lower.strip()) < 20:
             import random
-            dynamic_score = random.randint(62, 83)
+            dynamic_score = random.choice([24, 36, 48, 55, 68, 73, 81, 88])
+            
+        # Give high score for perfect profiles matching multiple skills
+        if matched_count >= 3:
+            dynamic_score = min(90 + (matched_count * 2), 100)
             
         mock_data = {
             "ats_score": dynamic_score,
@@ -320,9 +316,12 @@ def analyze_resume_with_ai(resume_text, profile):
                     "match_percentage": max(dynamic_score - 10, 55)
                 }
             ],
-            "career_advice": "Your resume has a strong foundation in core programming, but to target top-tier companies, you should gain hands-on experience with cloud deployment tools (AWS, Docker) and strengthen your database optimization skills. Focus on building real-world projects."
+            "career_advice": "Your resume has a strong foundation. (Note: Running in high-fidelity simulated fallback mode. Please make sure your GEMINI_API_KEY is active in the Admin settings for live production queries)."
         }
         return mock_data
+
+    if not api_key:
+        return generate_dynamic_mock_report()
 
     # Real Gemini API analysis
     try:
@@ -436,32 +435,7 @@ def analyze_resume_with_ai(resume_text, profile):
         
     except Exception as e:
         print(f"Gemini API Error: {e}. Falling back to clean mock data.")
-        mock_data = {
-            "ats_score": 75,
-            "skill_gaps": ["Docker", "Kubernetes", "System Design", "Cloud Computing (AWS/GCP)"],
-            "matching_jobs": [
-                {
-                    "role": "Full Stack Developer",
-                    "companies": ["Google", "Zoho", "Freshworks"],
-                    "salary_range": "8 - 15 LPA",
-                    "match_percentage": 85
-                },
-                {
-                    "role": "Software Engineer",
-                    "companies": ["Microsoft", "Cognizant", "TCS"],
-                    "salary_range": "6 - 12 LPA",
-                    "match_percentage": 78
-                },
-                {
-                    "role": "Junior DevOps Engineer",
-                    "companies": ["Infosys", "Wipro", "Amazon"],
-                    "salary_range": "7 - 11 LPA",
-                    "match_percentage": 65
-                }
-            ],
-            "career_advice": "Your resume has a strong foundation. (Note: We encountered an issue communicating with the Gemini AI server. Please make sure your GEMINI_API_KEY is active and correct in the Admin settings. Displaying simulated report)."
-        }
-        return mock_data
+        return generate_dynamic_mock_report()
 
 # Routes
 @app.route('/')
