@@ -256,27 +256,39 @@ def analyze_resume_with_ai(resume_text, profile):
     api_key = get_gemini_api_key()
     
     if not api_key:
+        # Dynamically calculate match score based on technical keywords present in resume vs profile
+        text_lower = resume_text.lower()
+        declared_skills = [s.strip().lower() for s in (profile.skills or '').split(',') if s.strip()]
+        
+        # Calculate dynamic overlap score (base 50% + 10% per matching skill, max 92%)
+        matched_count = sum(1 for skill in declared_skills if skill in text_lower)
+        dynamic_score = min(50 + (matched_count * 10), 92)
+        if dynamic_score < 50:
+            # Fallback to random realistic score between 62% and 83% if resume text matches are weak
+            import random
+            dynamic_score = random.randint(62, 83)
+            
         mock_data = {
-            "ats_score": 75,
+            "ats_score": dynamic_score,
             "skill_gaps": ["Docker", "Kubernetes", "System Design", "Cloud Computing (AWS/GCP)"],
             "matching_jobs": [
                 {
                     "role": "Full Stack Developer",
                     "companies": ["Google", "Zoho", "Freshworks"],
                     "salary_range": "8 - 15 LPA",
-                    "match_percentage": 85
+                    "match_percentage": min(dynamic_score + 8, 98)
                 },
                 {
                     "role": "Software Engineer",
                     "companies": ["Microsoft", "Cognizant", "TCS"],
                     "salary_range": "6 - 12 LPA",
-                    "match_percentage": 78
+                    "match_percentage": min(dynamic_score + 2, 94)
                 },
                 {
                     "role": "Junior DevOps Engineer",
                     "companies": ["Infosys", "Wipro", "Amazon"],
                     "salary_range": "7 - 11 LPA",
-                    "match_percentage": 65
+                    "match_percentage": max(dynamic_score - 10, 55)
                 }
             ],
             "career_advice": "Your resume has a strong foundation in core programming, but to target top-tier companies, you should gain hands-on experience with cloud deployment tools (AWS, Docker) and strengthen your database optimization skills. Focus on building real-world projects."
@@ -528,10 +540,11 @@ def login():
         return redirect(url_for('upload'))
         
     if request.method == 'POST':
-        email = request.form.get('email').strip()
+        login_input = request.form.get('email', '').strip()  # Supports email or username
         password = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
+        # Query matching email OR username
+        user = User.query.filter((User.email == login_input) | (User.username == login_input)).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             flash('Logged in successfully!', 'success')
@@ -539,7 +552,7 @@ def login():
                 return redirect(url_for('profile_setup'))
             return redirect(url_for('upload'))
         else:
-            flash('Invalid email or password!', 'danger')
+            flash('Invalid email/username or password!', 'danger')
             
     return render_template('login.html')
 
@@ -605,7 +618,13 @@ def upload():
             flash('No file selected!', 'danger')
             return redirect(request.url)
             
-        if file and file.filename.endswith('.pdf'):
+        # Strictly enforce PDF validation (both file extension and mime type)
+        is_pdf = file.filename.lower().endswith('.pdf') and (file.content_type == 'application/pdf' or file.mimetype == 'application/pdf')
+        if not is_pdf:
+            flash('ERROR: Upload failed. Only PDF document files are allowed. Please convert your resume to PDF format and try again.', 'danger')
+            return redirect(request.url)
+            
+        if file:
             # Save file
             filename = secure_filename(f"{current_user.username}_{file.filename}")
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -828,6 +847,85 @@ def update_settings():
         flash('Gemini API Key removed. Running in Mock Mode.', 'warning')
         
     return redirect(url_for('admin_panel'))
+
+@app.route('/admin/factory-reset', methods=['POST'])
+@login_required
+def factory_reset_db():
+    if not current_user.is_admin or current_user.username.lower() != 'dhanush':
+        flash('Unauthorized access!', 'danger')
+        return redirect(url_for('upload'))
+        
+    try:
+        # Drop all tables and recreate them
+        db.drop_all()
+        db.create_all()
+        
+        # Seed fresh dhanush owner profile
+        hashed_password = generate_password_hash('admin123')
+        admin = User(
+            username='dhanush',
+            email='dhanush@resumeai.com',
+            mobile_number='+910000000000',
+            password_hash=hashed_password,
+            is_admin=True
+        )
+        db.session.add(admin)
+        admin_profile = Profile(
+            user=admin,
+            college_name="ResumeAI HQ",
+            degree="Master Administrator",
+            cgpa="10.0",
+            graduation_year="2026",
+            skills="Python, Flask, AI Development, SQL, Java"
+        )
+        db.session.add(admin_profile)
+        
+        # Seed test candidate accounts
+        u1 = User(
+            username='dhanush_1485',
+            email='dhanushravi1485@gmail.com',
+            mobile_number='+919876543210',
+            password_hash=generate_password_hash('password123'),
+            is_admin=False
+        )
+        db.session.add(u1)
+        p1 = Profile(
+            user=u1,
+            college_name="Google verified university",
+            degree="B.E. Computer Science Engineering",
+            cgpa="8.5",
+            graduation_year="2025",
+            skills="Python, Flask, SQL, Java, Javascript"
+        )
+        db.session.add(p1)
+
+        u2 = User(
+            username='dhanush_1735',
+            email='dhanushravi1735@gmail.com',
+            mobile_number='+919876543211',
+            password_hash=generate_password_hash('password123'),
+            is_admin=False
+        )
+        db.session.add(u2)
+        p2 = Profile(
+            user=u2,
+            college_name="Google verified university",
+            degree="B.E. Computer Science Engineering",
+            cgpa="8.5",
+            graduation_year="2025",
+            skills="Python, Flask, SQL, Java, Javascript"
+        )
+        db.session.add(p2)
+        
+        db.session.commit()
+        logout_user() # Force logout to re-authenticate cleanly
+        flash('Database successfully reset to clean factory defaults. Please login again!', 'success')
+        return redirect(url_for('login'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Factory reset failed: {str(e)}', 'danger')
+        return redirect(url_for('admin_panel'))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -25,8 +25,13 @@
                 Save Key <i class="fa-solid fa-save"></i>
             </button>
         </form>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px;">
-            <i class="fa-solid fa-info-circle"></i> Discarding or leaving the API key empty will automatically toggle the app into simulated Mock Mode for resume scanning.
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span><i class="fa-solid fa-info-circle"></i> Discarding or leaving the API key empty will automatically toggle the app into simulated Mock Mode for resume scanning.</span>
+            <form action="{{ url_for('factory_reset_db') }}" method="POST" onsubmit="return confirm('WARNING: This will completely drop all custom users, analyses, and applications, and reset default test accounts. Proceed?');" style="display: inline; margin: 0;">
+                <button type="submit" style="background: rgba(239,68,68,0.1); border: 1.5px solid rgba(239,68,68,0.3); color: #ef4444; padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: 0.2s;">
+                    <i class="fa-solid fa-dumpster-fire"></i> Factory Reset Database
+                </button>
+            </form>
         </p>
     </div>
 

@@ -289,14 +289,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileLabel = document.getElementById('file-label');
     
     if (uploadZone && fileInput) {
+        const validateAndSetFile = (files) => {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type !== 'application/pdf' && !file.name.toLowerCase().endswith('.pdf')) {
+                    speakText("Upload failed. Only PDF files are allowed.");
+                    alert("ERROR: Only PDF document files (.pdf) are allowed as resume uploads. Please convert your file to PDF format and try again.");
+                    fileInput.value = ''; // Clear selection
+                    fileLabel.innerText = '';
+                    return false;
+                }
+                fileLabel.innerText = `Selected File: ${file.name}`;
+                return true;
+            }
+            return false;
+        };
+
         uploadZone.addEventListener('click', () => {
             fileInput.click();
         });
         
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                fileLabel.innerText = `Selected File: ${fileInput.files[0].name}`;
-            }
+            validateAndSetFile(fileInput.files);
         });
         
         uploadZone.addEventListener('dragover', (e) => {
@@ -310,9 +324,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         uploadZone.addEventListener('drop', (e) => {
             e.preventDefault();
+            uploadZone.style.borderColor = 'var(--border-glass)';
             if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
-                fileLabel.innerText = `Dropped File: ${fileInput.files[0].name}`;
+                const valid = validateAndSetFile(e.dataTransfer.files);
+                if (valid) {
+                    fileInput.files = e.dataTransfer.files;
+                }
             }
         });
     }
