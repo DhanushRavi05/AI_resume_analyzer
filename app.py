@@ -552,9 +552,7 @@ Recommended Job Roles & Estimated Packages:
 Actionable Career Guidance:
 {analysis_result.get('career_advice')}
 
-Best regards,
-Dhanush Ravi
-Founder, Dhanush's AI Resume Analyzer
+Thanks for using! Created by Dhanush.
 """
             send_email_async(current_user.email, email_subject, email_body)
             
@@ -645,9 +643,7 @@ Your application for {role} at {company} has been received.
 Tracker Link:
 {demo_portal_url}
 
-Best regards,
-Dhanush Ravi
-Founder, Dhanush's AI Resume Analyzer
+Thanks for using! Created by Dhanush.
 """
             send_email_async(current_user.email, email_subject, email_body)
             return redirect(url_for('apply_success', company=company, role=role))
